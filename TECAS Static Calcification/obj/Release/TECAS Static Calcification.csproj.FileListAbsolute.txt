@@ -218,3 +218,17 @@ C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calci
 C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.1\TECAS Static Calcification\obj\Release\TECAS Static Calcification.csproj.GenerateResource.Cache
 C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.1\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe.manifest
 C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.1\TECAS Static Calcification\obj\Release\TECAS Static Calcification.application
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\bin\Release\TECAS Static Calcification.exe.config
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS Static Calcification.pdb
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\bin\Release\TECAS Static Calcification.exe.manifest
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\bin\Release\TECAS Static Calcification.application
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\bin\Release\TECAS Static Calcification.exe
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\bin\Release\TECAS Static Calcification.pdb
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS Static Calcification.csprojResolveAssemblyReference.cache
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS_Static_Calcification.TECAS.resources
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS_Static_Calcification.SyrSamInp.resources
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS_Static_Calcification.Properties.Resources.resources
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS Static Calcification.csproj.GenerateResource.Cache
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe.manifest
+C:\Users\User\Dropbox\ESR4\Software\Calcification Software\20141208 Static Calcif V1.2\TECAS Static Calcification\obj\Release\TECAS Static Calcification.application

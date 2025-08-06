@@ -192,7 +192,7 @@ namespace TECAS_Static_Calcification
             bool requestedExit = false;
             //blink label Please Wait...
             Waitlbltick++;
-            if (Waitlbltick >= 5)
+            if (Waitlbltick >= 10)
             {
                 Waitlbltick = 0;
                 label48.Visible = !label48.Visible;
@@ -476,9 +476,9 @@ namespace TECAS_Static_Calcification
                     pHMeasureAvg = pHMeasureAvg + pHMeasureVal;
                     label42.Text = String.Format("{0:0.000000000 V}", dblValue);
                     pHMeasureTicks++;
-                    if (pHMeasureTicks >= 30)//average between N samples
+                    if (pHMeasureTicks >= 10)//average between N samples
                     {
-                        label3.Text = String.Format("{0:0.000000}", pHMeasureAvg/30);
+                        label3.Text = String.Format("{0:0.000000}", pHMeasureAvg/10);
                         if (Convert.ToDouble(textBox3.Text) == 0)
                             label37.Text = "0.000000";
                         else
@@ -1225,6 +1225,11 @@ namespace TECAS_Static_Calcification
             } 
 
             ExpStart = DateTime.Now;
+            //Disable all other timers that might be enabled
+            timer1.Enabled = false;
+            timer2.Enabled = false;
+            timer3.Enabled = false;
+
             aTimer.Enabled = true;
             timer4.Enabled = true;
         }
