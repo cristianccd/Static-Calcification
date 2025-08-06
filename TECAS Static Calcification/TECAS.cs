@@ -129,13 +129,13 @@ namespace TECAS_Static_Calcification
                     Convert.ToDouble(dataGridView2[0,i].Value);
                     if (Convert.ToDouble(dataGridView2[0, i].Value) <= 0 || Convert.ToDouble(dataGridView2[0, i].Value) > 14)
                     {
-                        MessageBox.Show("pH sample No." + Convert.ToString(i + 1) + " not correct!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("sample No." + Convert.ToString(i + 1) + " not correct!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
                 }
                 catch (Exception )
                 {
-                    MessageBox.Show("pH format not valid", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Format not valid", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }
@@ -217,7 +217,7 @@ namespace TECAS_Static_Calcification
             switch (pHCalState) // Check for errors
             {
                 case 0://calibration started
-                    pHQuestSample = MessageBox.Show("When you are ready to measure the Sample " + Convert.ToString(pHSampleNo + 1) + " press OK", "pH Meter Calibration", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                    pHQuestSample = MessageBox.Show("When you are ready to measure the Sample " + Convert.ToString(pHSampleNo + 1) + " press OK", "Electrode Calibration", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                     //if the result is OK, change state and start counting time
                     if (pHQuestSample == DialogResult.OK)
                     {
@@ -470,7 +470,7 @@ namespace TECAS_Static_Calcification
             //Check for calibration
             if (!checkBox2.Checked)
             {
-                MessageBox.Show("pH Calibration not done!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("mV Calibration not done!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             //Read the setpoint
@@ -558,12 +558,12 @@ namespace TECAS_Static_Calcification
                     {
                         pHMeasureAvg = pHMeasureAcc / 10;
                         AvgVoltage = dblValueAcc / 10;
-                        label3.Text = String.Format("{0:0.000}", pHMeasureAvg);
-                        label42.Text = String.Format("{0:0.0000 V}", AvgVoltage);
+                        label3.Text = String.Format("{0:0000.000}", pHMeasureAvg);
+                        label42.Text = String.Format("{0:0000.000}", AvgVoltage * 1000 + " mV");
                         if (Convert.ToDouble(textBox3.Text) == 0)
-                            label37.Text = "0.000";
+                            label37.Text = "0000.000";
                         else
-                            label37.Text = String.Format("{0:0.000}", pHMeasureAvg - Convert.ToDouble(textBox3.Text));
+                            label37.Text = String.Format("{0:0000.000}", pHMeasureAvg - Convert.ToDouble(textBox3.Text)) +" mV";
                         chart2.Series["Series1"].Points.AddXY((DateTime.Now - pHMeasureStart).TotalSeconds, pHMeasureAvg);
                         //If the seconds are more than 300 start resizing
                         if ((DateTime.Now - pHMeasureStart).TotalSeconds>300)
@@ -750,8 +750,8 @@ namespace TECAS_Static_Calcification
             }
             else
             {
-                Error_SW.Write("Error reading pH @ " + DateTime.Now.ToString() + " - " + Ex.Message + "\r\n");
-                toolStripStatusLabel1.Text = "Error reading pH @ " + DateTime.Now.ToString() + " - " + Ex.Message;
+                Error_SW.Write("Error reading @ " + DateTime.Now.ToString() + " - " + Ex.Message + "\r\n");
+                toolStripStatusLabel1.Text = "Error reading @ " + DateTime.Now.ToString() + " - " + Ex.Message;
             }
             Error_SW.Flush();
             statusStrip1.BackColor = Color.Red;
@@ -1217,7 +1217,7 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show("Initial time", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            if (checkBox1.Checked != true || checkBox2.Checked != true)
+            if (checkBox1.Checked != true) //|| checkBox2.Checked != true)
             {
                 MessageBox.Show("Calibrations not done, please load the calibration files!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
@@ -1408,7 +1408,7 @@ namespace TECAS_Static_Calcification
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             //Start Export Data
-            string _FirstLine = "PH Setp.:"+ textBox2.Text + "Max. Vol [ul]:" + textBox5.Text + "Mix Time [s]:" + textBox6.Text +",Time[s],Value,,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value,\n";
+            string _FirstLine = "Setp.:"+ textBox2.Text + "Max. Vol [ul]:" + textBox5.Text + "Mix Time [s]:" + textBox6.Text +",Time[s],Value[mV],,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value[mV],\n";
             string[] Content = new string[chart4.Series["Series1"].Points.Count];
             string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ @"\CSR Experiments";
             try
@@ -1465,7 +1465,7 @@ namespace TECAS_Static_Calcification
                         case 0:
                             //Initial state, accum the reading
                             ExpTicks++;
-                            ExpAccVal += (dblValue - pHCalIntercept) / pHCalSlope;
+                            //ExpAccVal += (dblValue - pHCalIntercept) / pHCalSlope;
                             dblValueAcc += dblValue;
                             //If the ticks are 10, change state
                             if (ExpTicks >= 10)
@@ -1473,13 +1473,14 @@ namespace TECAS_Static_Calcification
                             break;
                         case 1:
                             //Calculate the avgs
-                            ExpAvgVal = ExpAccVal / 10;
-                            AvgVoltage = dblValueAcc / 10;
+                            //ExpAvgVal = ExpAccVal / 10;
+                            AvgVoltage = dblValueAcc / 10 *1000;
                             //Calculate the deviation
-                            Deviation = ExpAvgVal - Convert.ToDouble(textBox2.Text);
+                            //Deviation = ExpAvgVal - Convert.ToDouble(textBox2.Text);
+                            Deviation = AvgVoltage - Convert.ToDouble(textBox2.Text);
                             //Reset Ticks and accum.
                             ExpTicks = 0;
-                            ExpAccVal = 0;
+                            //ExpAccVal = 0;
                             dblValueAcc = 0;
                             //If the initial time is not reached go to state 0
                             if (DateTime.Now.AddSeconds(0 - Convert.ToDouble(textBox4.Text)) < ExpStart)
@@ -1542,7 +1543,7 @@ namespace TECAS_Static_Calcification
                             //Infusion starts
                             InfStarted = true;
                             //Calculate the volume to infuse
-                            CalcVol = Math.Abs(Deviation) * (Convert.ToDouble(textBox5.Text) - 20) + 20;
+                            CalcVol = Math.Abs(Deviation) /100 * Convert.ToDouble(textBox5.Text);//Math.Abs(Deviation) * (Convert.ToDouble(textBox5.Text) - 20) + 20;
                             VoltoInf = (CalcVol - SyrCalIntercept) / SyrCalSlope;
                             //Minimum: 20ul
                             if (VoltoInf < 20)
@@ -1680,10 +1681,10 @@ namespace TECAS_Static_Calcification
                     {
                         //Calculate the time from the beggining of the experiment
                         TimeDif = (DateTime.Now - ExpStart).TotalSeconds;
-                        chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
+                        chart4.Series["Series1"].Points.AddXY(TimeDif, AvgVoltage);//ExpAvgVal);
                         chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
                         chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
-                        swexp.Write("," + TimeDif + "," + ExpAvgVal + ",,," + TimeDif + "," + AccumVolInf + ",,," + TimeDif + "," + Deviation + "\n");
+                        swexp.Write("," + TimeDif + "," + /*ExpAvgVal*/AvgVoltage + ",,," + TimeDif + "," + AccumVolInf + ",,," + TimeDif + "," + Deviation + "\n");
                         swexp.Flush();
                         //Update if the pointer is divisible by the update
                         graphUpdate++;
@@ -1695,11 +1696,13 @@ namespace TECAS_Static_Calcification
                             graphUpdate = 0;
                         }
                         //refresh the labels
-                        label13.Text = String.Format("{0:0.0000 V}", AvgVoltage);
-                        label16.Text = String.Format("{0:0.000}", ExpAvgVal);                     
-                        label17.Text = String.Format("{0:0.000}", Deviation);
+                        //label13.Text = String.Format("{0:0000.0 mV}", AvgVoltage);
+                        label16.Text = String.Format("{0:0000.000}", AvgVoltage);//ExpAvgVal);                     
+                        label17.Text = String.Format("{0:0000.000}", Deviation) + " mV";
                         label21.Text = String.Format("{0}", (DateTime.Now - ExpStart).Days)+ " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
                         label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
+                        if (checkBox2.Checked == true)
+                            label55.Text = String.Format("{0:00000.00}", (AvgVoltage/1000 - pHCalIntercept) / pHCalSlope);
                     }));
             }
         }
@@ -1712,14 +1715,14 @@ namespace TECAS_Static_Calcification
                     chart4.Series["Series1"].Enabled = true;
                     chart4.Series["Series2"].Enabled = false;
                     chart4.Series["Series3"].Enabled = false;
-                    chart4.ChartAreas[0].AxisY.Title = "pH";
+                    chart4.ChartAreas[0].AxisY.Title = "mV";
                     chart4.Update();
                     break;
                 case 0:
                     chart4.Series["Series1"].Enabled = true;
                     chart4.Series["Series2"].Enabled = false;
                     chart4.Series["Series3"].Enabled = false;
-                    chart4.ChartAreas[0].AxisY.Title = "pH";
+                    chart4.ChartAreas[0].AxisY.Title = "mV";
                     chart4.Update();
                     break;
                 case 1:
@@ -1733,7 +1736,7 @@ namespace TECAS_Static_Calcification
                     chart4.Series["Series1"].Enabled = false;
                     chart4.Series["Series2"].Enabled = false;
                     chart4.Series["Series3"].Enabled = true;
-                    chart4.ChartAreas[0].AxisY.Title = "pH Deviation";
+                    chart4.ChartAreas[0].AxisY.Title = "mV Deviation";
                     chart4.Update();
                     break;
             }
@@ -1799,7 +1802,7 @@ namespace TECAS_Static_Calcification
             EnableTab(tabPage3, true);
             //Set variables to 0
             ExpTicks = 0;
-            ExpAvgVal = 0;
+            //ExpAvgVal = 0;
             ExpAccVal = 0;
             Deviation=0;
             VoltoInf=0;
@@ -1914,8 +1917,7 @@ namespace TECAS_Static_Calcification
 
         private void button22_Click(object sender, EventArgs e)
         {
-            if (HelpForm == null)
-                HelpForm = new FormHelp();
+            HelpForm = new FormHelp();
             HelpForm.Show();
         }
 

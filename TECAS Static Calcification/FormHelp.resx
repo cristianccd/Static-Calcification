@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="richTextBox1.Text" xml:space="preserve">
-    <value>CSR 4.0 - Cristian D'Alessandro - cristian@mech.upatras.gr/cristian.ccd@gmail.com
+    <value>CSR 4.1 - Cristian D'Alessandro - cristian@mech.upatras.gr/cristian.ccd@gmail.com
 
 
 This software is intended to be used with the data acquisition system (DAQ) from Labjack, USA and a syringe pump from New Era, USA. 
@@ -134,7 +134,7 @@ Setpoint: Is the desired value that is to be maintained.
 Automatic Refill: Tick this box if you want to automatically refill the syringes through a 3 way valve. The refilling is set to be 1ml every 1ml infused.
 Infusion Deviation: It establishes the type of experiment. Negative will trigger the pumps when the value is under the setpoint and Positive will do the opposite.
 Mix Time: Is the time in seconds that the software will wait between infusions. The minimum value is set to 5 seconds.
-Max. Vol: Is the maximum volume infused by the pump for a deviation of X unit(s).
+Max. Vol: Is the maximum volume infused by the pump for a deviation of 100 unit(s).
 Initial waiting time: Is the time that the software will wait while recording before the start of the infusion.
 Subsampling: Is the amount of samples per second that will be logged.
 
