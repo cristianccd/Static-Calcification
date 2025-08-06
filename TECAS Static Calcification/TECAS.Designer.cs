@@ -153,6 +153,7 @@
             this.button7 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.button21 = new System.Windows.Forms.Button();
             this.panel18 = new System.Windows.Forms.Panel();
             this.button19 = new System.Windows.Forms.Button();
             this.button10 = new System.Windows.Forms.Button();
@@ -183,7 +184,6 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.button21 = new System.Windows.Forms.Button();
             this.tabPage4.SuspendLayout();
             this.panel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart4)).BeginInit();
@@ -1403,6 +1403,16 @@
             this.tabPage1.Text = "pH Calibration";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // button21
+            // 
+            this.button21.Location = new System.Drawing.Point(611, 398);
+            this.button21.Name = "button21";
+            this.button21.Size = new System.Drawing.Size(73, 23);
+            this.button21.TabIndex = 102;
+            this.button21.Text = "Disable WD";
+            this.button21.UseVisualStyleBackColor = true;
+            this.button21.Click += new System.EventHandler(this.button21_Click);
+            // 
             // panel18
             // 
             this.panel18.Controls.Add(this.button19);
@@ -1716,7 +1726,7 @@
             this.statusStrip1.BackColor = System.Drawing.Color.Green;
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 480);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 479);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(713, 22);
             this.statusStrip1.TabIndex = 1;
@@ -1729,28 +1739,18 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(114, 17);
             this.toolStripStatusLabel1.Text = "No reported issues...";
             // 
-            // button21
-            // 
-            this.button21.Location = new System.Drawing.Point(611, 398);
-            this.button21.Name = "button21";
-            this.button21.Size = new System.Drawing.Size(73, 23);
-            this.button21.TabIndex = 102;
-            this.button21.Text = "Disable WD";
-            this.button21.UseVisualStyleBackColor = true;
-            this.button21.Click += new System.EventHandler(this.button21_Click);
-            // 
             // TECAS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(713, 502);
+            this.ClientSize = new System.Drawing.Size(713, 501);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(729, 540);
             this.MinimumSize = new System.Drawing.Size(729, 540);
             this.Name = "TECAS";
-            this.Text = "TECAS CSR V3.2";
+            this.Text = "TECAS CSR V3.3";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TECAS_FormClosing);
             this.Load += new System.EventHandler(this.TECAS_Load);
             this.tabPage4.ResumeLayout(false);
