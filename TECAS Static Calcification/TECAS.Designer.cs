@@ -170,6 +170,7 @@
             this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.checkBox5 = new System.Windows.Forms.CheckBox();
             this.tabPage4.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel11.SuspendLayout();
@@ -240,6 +241,7 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.checkBox5);
             this.tabPage4.Controls.Add(this.textBox4);
             this.tabPage4.Controls.Add(this.label49);
             this.tabPage4.Controls.Add(this.label51);
@@ -1576,6 +1578,17 @@
             this.tabControl1.Size = new System.Drawing.Size(698, 456);
             this.tabControl1.TabIndex = 0;
             // 
+            // checkBox5
+            // 
+            this.checkBox5.AutoSize = true;
+            this.checkBox5.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox5.Location = new System.Drawing.Point(58, 62);
+            this.checkBox5.Name = "checkBox5";
+            this.checkBox5.Size = new System.Drawing.Size(115, 17);
+            this.checkBox5.TabIndex = 32;
+            this.checkBox5.Text = "Automatic Refill";
+            this.checkBox5.UseVisualStyleBackColor = true;
+            // 
             // TECAS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1754,6 +1767,7 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label49;
+        private System.Windows.Forms.CheckBox checkBox5;
 
     }
 }

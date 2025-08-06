@@ -1200,6 +1200,7 @@ namespace TECAS_Static_Calcification
             textBox2.Enabled = false;
             textBox4.Enabled = false;
             comboBox1.Enabled = false;
+            checkBox5.Enabled = false;
            
             // Create a timer with an interval.
             aTimer = new System.Timers.Timer(SubSampling);
@@ -1312,7 +1313,7 @@ namespace TECAS_Static_Calcification
                             if (Convert.ToDouble(_Reading.Substring(5, 5)) >= VoltoInf || DateTime.Now.AddSeconds(-3) > ExpWaitTime) //up to 3 senconds to reach
                             {
                                 InfStarted = false;
-                                if (AccumVolInf > WdrVol)
+                                if (AccumVolInf > WdrVol && checkBox5.Checked==true)
                                 {
                                     WdrVol = WdrVol + 1000;
                                     serialPort1.Write("DIR WDR\r\n");
@@ -1431,6 +1432,7 @@ namespace TECAS_Static_Calcification
             textBox2.Enabled = true;
             textBox4.Enabled = true;
             comboBox1.Enabled = true;
+            checkBox5.Enabled = true;
 
             Paused = false;
             ExpTicks = 0;
