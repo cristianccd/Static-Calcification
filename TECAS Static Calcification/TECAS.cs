@@ -142,11 +142,6 @@ namespace TECAS_Static_Calcification
         private void button10_Click(object sender, EventArgs e)
         {
             timer2.Enabled = false;
-            button6.Enabled = true;
-            button7.Enabled = false;
-            EnableTab(tabPage2, false);
-            EnableTab(tabPage3, false);
-            EnableTab(tabPage4, false);
 
             if(pHCalErr())
             {
@@ -190,6 +185,12 @@ namespace TECAS_Static_Calcification
                 panel1.Visible = false;
                 for (int i = 0; i < dataGridView2.RowCount; i++)
                     dataGridView2[1, i].Value = "";
+                /*button6.Enabled = true;
+                button7.Enabled = false;
+                textBox3.Enabled = true;*/
+                EnableTab(tabPage2, false);
+                EnableTab(tabPage3, false);
+                EnableTab(tabPage4, false);
                 timer3.Enabled = true;
             }
             else
@@ -298,6 +299,8 @@ namespace TECAS_Static_Calcification
                     pHCalState = 0;
                     pHCal = true;
                     button6.Enabled = true;
+                    button7.Enabled = false;
+                    textBox3.Enabled = true;
                     checkBox2.Checked = true;
                     label48.Visible = false;
                     button19.Enabled = false;
@@ -354,6 +357,8 @@ namespace TECAS_Static_Calcification
                     button12.Enabled = true;
                     pHCal = true;
                     button6.Enabled = true;
+                    button7.Enabled = false;
+                    textBox3.Enabled = true;
                     checkBox2.Checked = true;
                     EnableTab(tabPage2, true);
                 }
@@ -441,6 +446,7 @@ namespace TECAS_Static_Calcification
                 textBox3.Text = "0";
             }
             button6.Enabled = false;
+            textBox3.Enabled = false;
             button7.Enabled = true;
             //Configure DAQ
             try
@@ -503,7 +509,7 @@ namespace TECAS_Static_Calcification
                         if (Convert.ToDouble(textBox3.Text) == 0)
                             label37.Text = "0.000";
                         else
-                            label37.Text = String.Format("{0:0.000}", Convert.ToDouble(textBox3.Text) - pHMeasureAvg);
+                            label37.Text = String.Format("{0:0.000}", pHMeasureAvg - Convert.ToDouble(textBox3.Text));
                         chart2.Series["Series1"].Points.AddXY((DateTime.Now - pHMeasureStart).TotalSeconds, pHMeasureAvg);
 
                         if ((DateTime.Now - pHMeasureStart).TotalSeconds>300)
@@ -532,6 +538,7 @@ namespace TECAS_Static_Calcification
         {
             button7.Enabled = false;
             button6.Enabled = true;
+            textBox3.Enabled = true;
             timer2.Enabled = false;
         }
         //*********************************************************************************
@@ -1089,7 +1096,8 @@ namespace TECAS_Static_Calcification
             serialPort1.Close();
             try
             {
-                Convert.ToDouble(textBox2.Text);
+                if(Convert.ToDouble(textBox2.Text)<0)
+                    throw new ArgumentException();
             }
             catch (Exception)
             {
@@ -1098,7 +1106,8 @@ namespace TECAS_Static_Calcification
             }
             try
             {
-                Convert.ToInt16(textBox4.Text);
+                if (Convert.ToInt16(textBox4.Text) < 0)
+                    throw new ArgumentException();
             }
             catch (Exception)
             {
@@ -1270,6 +1279,7 @@ namespace TECAS_Static_Calcification
             timer2.Enabled = false;
             button6.Enabled = true;
             button7.Enabled = false;
+            textBox3.Enabled = true;
             timer3.Enabled = false;
 
             EnableTab(tabPage1, false);
@@ -1309,11 +1319,11 @@ namespace TECAS_Static_Calcification
                         case 1:
                             ExpAvgVal = ExpAccVal / 10;
                             AvgVoltage1 = dblValueAcc1 / 10;
-                            Deviation = Convert.ToDouble(textBox2.Text) - ExpAvgVal;
+                            Deviation = ExpAvgVal - Convert.ToDouble(textBox2.Text);
                             ExpTicks = 0;
                             ExpAccVal = 0;
                             dblValueAcc1 = 0;                     
-                            if (Deviation > 0.001 && InfStarted == false && TimeMix==false)
+                            if (Deviation < 0.001 && InfStarted == false && TimeMix==false)
                             {
                                 ExpState = 2;
                                 serialPort1.Write("CLD INF\r\n");
@@ -1339,7 +1349,7 @@ namespace TECAS_Static_Calcification
                         case 2:
                             InfStarted = true;
                             ExpWaitTime=DateTime.Now;
-                            VoltoInf = ((Deviation * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
+                            VoltoInf = (((-Deviation) * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf < 20)
                                 VoltoInf = (20 - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf > 50)
@@ -1478,6 +1488,7 @@ namespace TECAS_Static_Calcification
             EnableTab(tabPage2, true);
             button6.Enabled = true;
             button7.Enabled = false;
+            textBox3.Enabled = true;
             EnableTab(tabPage3, true);
         }
 

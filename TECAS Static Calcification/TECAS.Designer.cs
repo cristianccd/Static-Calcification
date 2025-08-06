@@ -56,6 +56,7 @@
             this.saveFileDialog2 = new System.Windows.Forms.SaveFileDialog();
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.chart4 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.panel20 = new System.Windows.Forms.Panel();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label49 = new System.Windows.Forms.Label();
@@ -91,7 +92,6 @@
             this.label16 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.chart4 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.panel14 = new System.Windows.Forms.Panel();
             this.button18 = new System.Windows.Forms.Button();
@@ -177,12 +177,12 @@
             this.label7 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart4)).BeginInit();
             this.panel20.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel11.SuspendLayout();
             this.panel10.SuspendLayout();
             this.panel9.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart4)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.panel14.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -268,6 +268,51 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Static pH Experiment";
             this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // chart4
+            // 
+            chartArea1.AxisX.Title = "Time [s]";
+            chartArea1.AxisY.Title = "pH";
+            chartArea1.Name = "ChartArea1";
+            this.chart4.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart4.Legends.Add(legend1);
+            this.chart4.Location = new System.Drawing.Point(0, 104);
+            this.chart4.Name = "chart4";
+            series1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            series1.BorderWidth = 3;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            series1.IsVisibleInLegend = false;
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            series2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            series2.BorderWidth = 3;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            series2.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            series2.Enabled = false;
+            series2.IsVisibleInLegend = false;
+            series2.Legend = "Legend1";
+            series2.Name = "Series2";
+            series3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            series3.BorderWidth = 3;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            series3.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            series3.Enabled = false;
+            series3.IsVisibleInLegend = false;
+            series3.Legend = "Legend1";
+            series3.Name = "Series3";
+            this.chart4.Series.Add(series1);
+            this.chart4.Series.Add(series2);
+            this.chart4.Series.Add(series3);
+            this.chart4.Size = new System.Drawing.Size(570, 320);
+            this.chart4.TabIndex = 0;
+            this.chart4.Text = "chart4";
+            this.chart4.MouseEnter += new System.EventHandler(this.chart4_MouseEnter);
+            this.chart4.MouseLeave += new System.EventHandler(this.chart4_MouseLeave);
             // 
             // panel20
             // 
@@ -632,51 +677,6 @@
             this.comboBox2.TabIndex = 20;
             this.comboBox2.Text = "pH";
             this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
-            // 
-            // chart4
-            // 
-            chartArea1.AxisX.Title = "Time [s]";
-            chartArea1.AxisY.Title = "pH";
-            chartArea1.Name = "ChartArea1";
-            this.chart4.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart4.Legends.Add(legend1);
-            this.chart4.Location = new System.Drawing.Point(0, 104);
-            this.chart4.Name = "chart4";
-            series1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            series1.BorderWidth = 3;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            series1.IsVisibleInLegend = false;
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            series2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            series2.BorderWidth = 3;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            series2.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            series2.Enabled = false;
-            series2.IsVisibleInLegend = false;
-            series2.Legend = "Legend1";
-            series2.Name = "Series2";
-            series3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            series3.BorderWidth = 3;
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            series3.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            series3.Enabled = false;
-            series3.IsVisibleInLegend = false;
-            series3.Legend = "Legend1";
-            series3.Name = "Series3";
-            this.chart4.Series.Add(series1);
-            this.chart4.Series.Add(series2);
-            this.chart4.Series.Add(series3);
-            this.chart4.Size = new System.Drawing.Size(570, 320);
-            this.chart4.TabIndex = 0;
-            this.chart4.Text = "chart4";
-            this.chart4.MouseEnter += new System.EventHandler(this.chart4_MouseEnter);
-            this.chart4.MouseLeave += new System.EventHandler(this.chart4_MouseLeave);
             // 
             // tabPage3
             // 
@@ -1249,7 +1249,7 @@
             // 
             this.label37.AutoSize = true;
             this.label37.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label37.Location = new System.Drawing.Point(86, 41);
+            this.label37.Location = new System.Drawing.Point(73, 40);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(39, 16);
             this.label37.TabIndex = 6;
@@ -1656,6 +1656,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TECAS_FormClosing);
             this.Load += new System.EventHandler(this.TECAS_Load);
             this.tabPage4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.chart4)).EndInit();
             this.panel20.ResumeLayout(false);
             this.panel20.PerformLayout();
             this.panel13.ResumeLayout(false);
@@ -1665,7 +1666,6 @@
             this.panel10.PerformLayout();
             this.panel9.ResumeLayout(false);
             this.panel9.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart4)).EndInit();
             this.tabPage3.ResumeLayout(false);
             this.panel14.ResumeLayout(false);
             this.panel14.PerformLayout();
