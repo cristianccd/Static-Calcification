@@ -157,7 +157,7 @@ namespace TECAS_Static_Calcification
                         u3 = new U3(LJUD.CONNECTION.USB, "1", true); // Connection through USB
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 63, 16);//first 6 FIO analog b0000000000111111
-                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 5, 0);//Request FIO4 - 5
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request AIN0
                     LJUD.GoOne(u3.ljhandle);
                 }
                 catch (LabJackUDException h)
@@ -246,7 +246,7 @@ namespace TECAS_Static_Calcification
                     //Start adding the ticks to make the avg
                     pHTicks++;
                     //Add the voltage value in an accum.
-                    SumpHCal = SumpHCal + dblValue;
+                    SumpHCal = SumpHCal + dblValue * 1000;
                     timer3.Enabled = true;
                     break;
                 case 2://Time reached, change sample or exit
@@ -294,8 +294,8 @@ namespace TECAS_Static_Calcification
                     //Write the R2
                     label5.Text = "R =  " + String.Format("{0:0.0000}", pHR2);
                     //Graph
-                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[0,0].Value),pHCalSlope*Convert.ToDouble(dataGridView2[0,0].Value)+pHCalIntercept);
-                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[0, dataGridView2.RowCount-1].Value), pHCalSlope * Convert.ToDouble(dataGridView2[0, dataGridView2.RowCount - 1].Value) + pHCalIntercept);
+                    chart3.Series["Series1"].Points.AddXY(0, Convert.ToDouble(pHCalIntercept));
+                    chart3.Series["Series1"].Points.AddXY(1000, pHCalSlope * 1000 + pHCalIntercept);
                     //Show the equations
                     panel1.Visible = true;
                     //Enable add row
@@ -469,11 +469,11 @@ namespace TECAS_Static_Calcification
         private void button6_Click(object sender, EventArgs e)
         {
             //Check for calibration
-            if (!checkBox2.Checked)
+            /*if (!checkBox2.Checked)
             {
                 MessageBox.Show("mV Calibration not done!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
-            }
+            }*/
             //Read the setpoint
             if (textBox3.Text != "")
             {
@@ -551,16 +551,16 @@ namespace TECAS_Static_Calcification
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
-                    pHMeasureVal = (dblValue - pHCalIntercept) / pHCalSlope;
+                    pHMeasureVal = (dblValue * 1000 - pHCalIntercept) / pHCalSlope;
                     pHMeasureAcc += pHMeasureVal;
-                    dblValueAcc += dblValue;
+                    dblValueAcc += dblValue * 1000;
                     pHMeasureTicks++; //Start accum of read values every 75ms to make an average
                     if (pHMeasureTicks >= 10)//average between N samples
                     {
                         pHMeasureAvg = pHMeasureAcc / 10;
                         AvgVoltage = dblValueAcc / 10;
                         label3.Text = String.Format("{0:0000.000}", pHMeasureAvg);
-                        label42.Text = String.Format("{0:0000.000}", AvgVoltage * 1000 + " mV");
+                        label42.Text = String.Format("{0:0000.000} mV", AvgVoltage);
                         if (Convert.ToDouble(textBox3.Text) == 0)
                             label37.Text = "0000.000";
                         else
@@ -1198,7 +1198,7 @@ namespace TECAS_Static_Calcification
         {
             try
             {
-                if (Convert.ToDouble(textBox6.Text) < 0 || Convert.ToDouble(textBox6.Text) < 5)
+                if (Convert.ToDouble(textBox6.Text) < 5)
                     throw new ArgumentException();
                 if (Convert.ToDouble(textBox5.Text) < 20 || Convert.ToDouble(textBox5.Text) > 500)
                     throw new ArgumentException();
@@ -1277,7 +1277,7 @@ namespace TECAS_Static_Calcification
                     //enable the timer again for showing the graph
                     LJUD.AddRequest(u3.ljhandle, LJUD.IO.PUT_CONFIG, LJUD.CHANNEL.SWDT_ENABLE, 10, 0, 0);
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 63, 16);//first 5 FIO analog b0000000000011111
-                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 5, 0);//Request FIO4
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request AIN0
                     LJUD.GoOne(u3.ljhandle);
                     timer4.Enabled = true;
                     timer2.Enabled = false;
@@ -1467,7 +1467,7 @@ namespace TECAS_Static_Calcification
                             //Initial state, accum the reading
                             ExpTicks++;
                             //ExpAccVal += (dblValue - pHCalIntercept) / pHCalSlope;
-                            dblValueAcc += dblValue;
+                            dblValueAcc += dblValue * 1000;
                             //If the ticks are 10, change state
                             if (ExpTicks >= 10)
                                 ExpState = 1;
@@ -1475,7 +1475,7 @@ namespace TECAS_Static_Calcification
                         case 1:
                             //Calculate the avgs
                             //ExpAvgVal = ExpAccVal / 10;
-                            AvgVoltage = dblValueAcc / 10 *1000;
+                            AvgVoltage = dblValueAcc / 10;
                             //Calculate the deviation
                             //Deviation = ExpAvgVal - Convert.ToDouble(textBox2.Text);
                             Deviation = AvgVoltage - Convert.ToDouble(textBox2.Text);
@@ -1669,7 +1669,7 @@ namespace TECAS_Static_Calcification
             LJUD.AddRequest(u3.ljhandle, LJUD.IO.PUT_CONFIG, LJUD.CHANNEL.SWDT_RESET_DEVICE, 1, 0, 0);
             LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
             LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 63, 16);//first 5 FIO analog b0000000000011111
-            LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 5, 0);//Request FIO4
+            LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request AIN0
             LJUD.GoOne(u3.ljhandle);
         }
 
@@ -1703,7 +1703,7 @@ namespace TECAS_Static_Calcification
                         label21.Text = String.Format("{0}", (DateTime.Now - ExpStart).Days)+ " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
                         label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
                         if (checkBox2.Checked == true)
-                            label55.Text = String.Format("{0:00000.00}", (AvgVoltage/1000 - pHCalIntercept) / pHCalSlope);
+                            label55.Text = String.Format("{0:00000.00}", (AvgVoltage - pHCalIntercept) / pHCalSlope);
                     }));
             }
         }

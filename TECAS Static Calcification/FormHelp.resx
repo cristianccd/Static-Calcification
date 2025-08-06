@@ -118,12 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="richTextBox1.Text" xml:space="preserve">
-    <value>CSR 4.2 - Cristian D'Alessandro - cristian@mech.upatras.gr/cristian.ccd@gmail.com
+    <value>CSR 4.3 - Cristian D'Alessandro - cristian@mech.upatras.gr/cristian.ccd@gmail.com
 
 
 This software is intended to be used with the data acquisition system (DAQ) from Labjack, USA and a syringe pump from New Era, USA. 
 
-Before the beginning of any experiment please make sure that the connections are correct. The serial cable should be placed in the RJ-11 connector labeled "Computer" at the back of the pump. The DAQ system will have the BNC connector in the channels 4 as the positive and 5 as negative. The precision is given to 12bit per channel with a range of +/- 2.4V. Please connect the electrode through an amplifier to the BNC in the DAQ.
+Before the beginning of any experiment please make sure that the connections are correct. The serial cable should be placed in the RJ-11 connector labeled "Computer" at the back of the pump. The DAQ system will have the BNC connector in the channels FIO4 as the positive and GND as negative. The precision is given to 12 bit per channel with a range 0 to 3.6V. Please connect the electrode through an amplifier to the BNC in the DAQ.
 
 1. Calibration of the electrode: Input the reference values in the left column and choose the time of each measurement. A voltage average will be then assigned to the corresponding concentration. It is recommended that at least 3 references are used. The calibration tab will generate a linear correlation between these references which can be saved.
 2. Measurement: This measurement tab has no possibility to record the values, it is a simple tab to measure the values according to the calibration file loaded.
@@ -145,7 +145,7 @@ Output files: The generated files will be saved in the Windows "Documents" folde
 Watchdog function: In this version a watchdog function is included. The software will continue the experiment even if there are errors during operation. A log will be created with the events that triggered the error. Once an error was detected, the device will be reset automatically and try to continue the experiment. 
 If by any chance the system is shut down improperly, the watchdog will be still enabled and will prevent the use of the DAQ card until is disabled. This problem can be identified by seeing the status led on the side of the DAQ. If the led is blinking and switches off, then the watchdog is enabled. To disable it, please press the button in the "Electrode Calibration" tab. Please do not do this procedure during a running experiment.
 
-Patras, Greece - 08.04.16</value>
+Patras, Greece - 27.05.16</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
