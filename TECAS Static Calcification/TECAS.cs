@@ -46,7 +46,7 @@ namespace TECAS_Static_Calcification
         //Experiment
         double ExpTicks = 0, ExpAvgVal = 0, ExpAccVal = 0, Deviation=0, VoltoInf=0, TimeDif=0;
         DateTime ExpStart, ExpWaitTime;
-        bool InfStarted = false, TimeMix=false;
+        bool InfStarted = false, TimeMix = false, TimeMix_Wdr = false;
         bool Paused = false;
         int ExpState = 0, GraphPt=1, graphUpdate;
         double AccumVolInf = 0, SubSampling=0, WdrVol=1000, CalcVol=0, ReadVol=0;
@@ -504,7 +504,9 @@ namespace TECAS_Static_Calcification
             //Enable timer for pH reading
             timer2.Enabled = true;
         }
+        
         //Read pH value
+
         private void timer2_Tick(object sender, EventArgs e)
         {
             //disable timer
@@ -521,7 +523,16 @@ namespace TECAS_Static_Calcification
                 }
                 catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error getting the DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //MessageBox.Show("Error getting the DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    statusStrip1.BackColor = Color.Red;
+                    toolStripStatusLabel1.Text = "Last Error @" + DateTime.Now.ToString();
+                    System.Threading.Thread.Sleep(5000);
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.SWDT_CONFIG, LJUD.CHANNEL.SWDT_ENABLE, 10, 0, 0);
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.PUT_CONFIG, LJUD.CHANNEL.SWDT_RESET_DEVICE, 1, 0, 0);
+                    LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
+                    LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
+                    LJUD.GoOne(u3.ljhandle);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
@@ -558,7 +569,18 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    {
+                        //MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        statusStrip1.BackColor = Color.Red;
+                        toolStripStatusLabel1.Text = "Last Error @" + DateTime.Now.ToString();
+                        System.Threading.Thread.Sleep(5000);
+                        LJUD.AddRequest(u3.ljhandle, LJUD.IO.SWDT_CONFIG, LJUD.CHANNEL.SWDT_ENABLE, 10, 0, 0);
+                        LJUD.AddRequest(u3.ljhandle, LJUD.IO.PUT_CONFIG, LJUD.CHANNEL.SWDT_RESET_DEVICE, 1, 0, 0);
+                        LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
+                        LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
+                        LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
+                        LJUD.GoOne(u3.ljhandle);
+                    }
                 }
             }
             //enable timer again
@@ -823,7 +845,7 @@ namespace TECAS_Static_Calcification
                         }
                     }
                     /*R2 = ((Nxysum - xsumysum)^2)/(Nx^2sum - xsum*xsum)*(Ny^2sum - ysum*ysum)*/
-                    SyrR2=(Math.Pow((dataGridView1.RowCount*a-b*c),2))/((dataGridView1.RowCount*d-Math.Pow(b,2))*(dataGridView1.RowCount*f-Math.Pow(c,2)));
+                SyrR2 =(Math.Pow((dataGridView1.RowCount*a-b*c),2))/((dataGridView1.RowCount*d-Math.Pow(b,2))*(dataGridView1.RowCount*f-Math.Pow(c,2)));
                     /*Slope(b) = (NΣXY - (ΣX)(ΣY)) / (NΣX2 - (ΣX)2) Intercept(a) = (ΣY - b(ΣX)) / N */
                     SyrCalSlope = (dataGridView1.RowCount * a - b * c) / (dataGridView1.RowCount*d - Math.Pow(b, 2));
                     SyrCalIntercept=(c-SyrCalSlope*b)/dataGridView1.RowCount;
@@ -987,6 +1009,8 @@ namespace TECAS_Static_Calcification
                     //set the initial conditions to 0
                     serialPort1.Write("VOL 0\r\n");
                     System.Threading.Thread.Sleep(20);
+                    serialPort1.Write("VOL UL\r\n");
+                    System.Threading.Thread.Sleep(20);
                     serialPort1.Write("CLD INF\r\n");
                     System.Threading.Thread.Sleep(20);
                     serialPort1.Write("CLD WDR\r\n");
@@ -1000,8 +1024,8 @@ namespace TECAS_Static_Calcification
                     checkBox4.Checked = false;
                     return;
                 }
-                label44.Text = "0 ml";
-                label46.Text = "0 ml";
+                label44.Text = "0 ul";
+                label46.Text = "0 ul";
                 button16.Enabled = true;
                 button17.Enabled = true;
                 button18.Enabled = true;
@@ -1112,8 +1136,8 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            label44.Text="0 ml";
-            label46.Text = "0 ml";
+            label44.Text="0 ul";
+            label46.Text = "0 ul";
             serialPort1.Write("STP\r\n");
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("CLD INF\r\n");
@@ -1132,14 +1156,14 @@ namespace TECAS_Static_Calcification
         {
             try
             {
-                if (Convert.ToDouble(textBox2.Text) < 0 || Convert.ToDouble(textBox6.Text) < 5)
+                if (Convert.ToDouble(textBox2.Text) < 0 || Convert.ToDouble(textBox6.Text) < 3)
                     throw new ArgumentException();
-                if(Convert.ToDouble(textBox5.Text)<20)
+                if (Convert.ToDouble(textBox5.Text) < 20 || Convert.ToDouble(textBox5.Text) > 500)
                     throw new ArgumentException();
             }
             catch (Exception)
             {
-                MessageBox.Show("Setpoint is not in a valid format","Error!",MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Volume or time are below or over the limits!","Error!",MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             try
@@ -1258,6 +1282,7 @@ namespace TECAS_Static_Calcification
             ExpAccVal = 0;
             dblValue = 0;
             dblValueAcc = 0;
+            WdrVol = ((1000 - SyrCalIntercept) / SyrCalSlope);
             //Check the subsampling rate and load the divider for the graph
             try
             {
@@ -1376,7 +1401,16 @@ namespace TECAS_Static_Calcification
                 }
                 catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error getting the DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //MessageBox.Show("Error getting the DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    statusStrip1.BackColor = Color.Red;
+                    toolStripStatusLabel1.Text = "Last Error @" + DateTime.Now.ToString();
+                    System.Threading.Thread.Sleep(5000);
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.SWDT_CONFIG, LJUD.CHANNEL.SWDT_ENABLE, 10, 0, 0);
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.PUT_CONFIG, LJUD.CHANNEL.SWDT_RESET_DEVICE, 1, 0, 0);
+                    LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
+                    LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
+                    LJUD.GoOne(u3.ljhandle);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
@@ -1410,7 +1444,7 @@ namespace TECAS_Static_Calcification
                             //If the pH value is over the setpoint and positive infusion was selected -> infuse
                             if (comboBox3.SelectedIndex == 0) // Positive Deviation Infusion
                             {
-                                if (Deviation > 0 && InfStarted == false && TimeMix == false)
+                                if (Deviation > 0 && InfStarted == false && TimeMix == false && TimeMix_Wdr == false)
                                 {
 
                                     ExpState = 2;
@@ -1424,7 +1458,7 @@ namespace TECAS_Static_Calcification
                             //If the pH value is under the setpoint and negative infusion was selected -> infuse
                             else //Negative Deviation
                             {
-                                if (Deviation < 0 && InfStarted == false && TimeMix == false)
+                                if (Deviation < 0 && InfStarted == false && TimeMix == false && TimeMix_Wdr == false)
                                 {
                                     ExpState = 2;
                                     serialPort1.Write("CLD INF\r\n");
@@ -1443,8 +1477,15 @@ namespace TECAS_Static_Calcification
                             //Timemix
                             if (TimeMix)
                             {
-                                if (DateTime.Now.AddSeconds(-Convert.ToDouble(textBox6.Text)) > ExpWaitTime)//-10) > ExpWaitTime)//-Convert.ToDouble(textBox6.Text)) > ExpWaitTime)
+                                if (DateTime.Now.AddSeconds(-Convert.ToDouble(textBox6.Text)) > ExpWaitTime)
                                     TimeMix = false;
+                                ExpState = 0;
+                                break;
+                            }
+                            if (TimeMix_Wdr)
+                            {
+                                if (DateTime.Now.AddSeconds(-6) > ExpWaitTime)
+                                    TimeMix_Wdr = false;
                                 ExpState = 0;
                                 break;
                             }
@@ -1454,8 +1495,6 @@ namespace TECAS_Static_Calcification
                         case 2:
                             //Infusion starts
                             InfStarted = true;
-                            //Set the timer to now to check if some secs passed
-                            ExpWaitTime=DateTime.Now;
                             //Calculate the volume to infuse
                             CalcVol = Math.Abs(Deviation) * (Convert.ToDouble(textBox5.Text) - 20) + 20;
                             VoltoInf = (CalcVol - SyrCalIntercept) / SyrCalSlope;
@@ -1478,6 +1517,8 @@ namespace TECAS_Static_Calcification
                             //Accum the vol
                             AccumVolInf += CalcVol;
                             System.Threading.Thread.Sleep(20);
+                            //Set the timer to now to check if some secs passed
+                            ExpWaitTime = DateTime.Now;
                             serialPort1.Write("RUN\r\n");
                             System.Threading.Thread.Sleep(20);
                             ExpState=0;
@@ -1505,6 +1546,8 @@ namespace TECAS_Static_Calcification
                                     System.Threading.Thread.Sleep(30);
                                     serialPort1.Write("RUN\r\n");
                                     System.Threading.Thread.Sleep(30);
+                                    //Wdr Mix time
+                                    TimeMix_Wdr = true;
                                 }
                                 //Mixing time
                                 TimeMix = true;
@@ -1523,7 +1566,18 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    {
+                        //MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        statusStrip1.BackColor = Color.Red;
+                        toolStripStatusLabel1.Text = "Last Error @" + DateTime.Now.ToString();
+                        System.Threading.Thread.Sleep(5000);
+                        LJUD.AddRequest(u3.ljhandle, LJUD.IO.SWDT_CONFIG, LJUD.CHANNEL.SWDT_ENABLE, 10, 0, 0);
+                        LJUD.AddRequest(u3.ljhandle, LJUD.IO.PUT_CONFIG, LJUD.CHANNEL.SWDT_RESET_DEVICE, 1, 0, 0);
+                        LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
+                        LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
+                        LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
+                        LJUD.GoOne(u3.ljhandle);
+                    }
                 }
             }
             //Enable timer again
@@ -1642,6 +1696,8 @@ namespace TECAS_Static_Calcification
             comboBox1.Enabled = true;
             checkBox5.Enabled = true;
             comboBox3.Enabled = true;
+            textBox5.Enabled = true;
+            textBox6.Enabled = true;
             Paused = false;
             EnableTab(tabPage1, true);
             EnableTab(tabPage2, true);
@@ -1737,6 +1793,11 @@ namespace TECAS_Static_Calcification
                 tabControl1.SelectTab(tabPage4);
             }
             return;
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
 
         //*********************************************************************************
