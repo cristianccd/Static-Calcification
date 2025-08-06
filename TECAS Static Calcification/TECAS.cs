@@ -49,9 +49,9 @@ namespace TECAS_Static_Calcification
         DateTime ExpStart, ExpWaitTime;
         bool InfStarted = false;
         bool Paused = false;
-        int ExpState = 0, SubSampling = 0;
-        double AccumVolInf = 0;
-        public static System.Timers.Timer aTimer;
+        int ExpState = 0;
+        double AccumVolInf = 0, SubSampling=0;
+        static private System.Timers.Timer aTimer;
 
         //***************************
 
@@ -666,7 +666,7 @@ namespace TECAS_Static_Calcification
                     System.Threading.Thread.Sleep(20);
                     _Reading=serialPort1.ReadExisting();
                     label33.Text = "Current Volume: " + _Reading.Substring(5, 5) + _Reading.Substring(16, 2).ToLower();
-                    if (Convert.ToDouble(_Reading.Substring(5, 5)) == Convert.ToDouble(dataGridView1[0, SampleNo-1].Value.ToString()))
+                    if (Convert.ToDouble(_Reading.Substring(5, 5)) >= Convert.ToDouble(dataGridView1[0, SampleNo-1].Value.ToString()))
                     {
                         State = 2;//input volume form2
                         label33.Text = "Current Volume: " + _Reading.Substring(5, 5) + _Reading.Substring(16, 2).ToLower();
@@ -697,25 +697,48 @@ namespace TECAS_Static_Calcification
                     double a = 0, b = 0, c = 0, d = 0, f = 0;
                     for (int i = 0; i < dataGridView1.RowCount; i++)
                     {
-                        //sumxy
-                        a= a + Convert.ToDouble(dataGridView1[0, i].Value) * Convert.ToDouble(dataGridView1[2, i].Value);
-                        //sumx
-                        b= b + Convert.ToDouble(dataGridView1[0, i].Value);
-                        //sumy
-                        c= c +Convert.ToDouble(dataGridView1[2, i].Value);
-                        //sumx2
-                        d= d + Math.Pow(Convert.ToDouble(dataGridView1[0, i].Value), 2);
-                        //sumy2
-                        f= f + Math.Pow(Convert.ToDouble(dataGridView1[2, i].Value),2);
-                        chart1.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView1[0,i].Value),dataGridView1[2, i].Value);
+                        if (dataGridView1[1, i].Value.ToString() == "ml")
+                        {
+                            double Aux1 = 0, Aux2 = 0;
+                            Aux1 = Convert.ToDouble(dataGridView1[0, i].Value) * 1000;
+                            Aux2 = Convert.ToDouble(dataGridView1[2, i].Value) * 1000;
+                            //sumxy
+                            a = a + Aux1*Aux2;
+                            //sumx
+                            b = b + Aux1;
+                            //sumy
+                            c = c + Aux2;
+                            //sumx2
+                            d = d + Math.Pow(Aux1, 2);
+                            //sumy2
+                            f = f + Math.Pow(Aux2, 2);
+                            chart1.Series["Series1"].Points.AddXY(Aux1, Aux2);
+                            if (i == 0 || i == dataGridView1.RowCount-1)
+                                chart1.Series["Series2"].Points.AddXY(Aux1, Aux2);
+                        }
+                        else
+                        {
+                            //sumxy
+                            a = a + Convert.ToDouble(dataGridView1[0, i].Value) * Convert.ToDouble(dataGridView1[2, i].Value);
+                            //sumx
+                            b = b + Convert.ToDouble(dataGridView1[0, i].Value);
+                            //sumy
+                            c = c + Convert.ToDouble(dataGridView1[2, i].Value);
+                            //sumx2
+                            d = d + Math.Pow(Convert.ToDouble(dataGridView1[0, i].Value), 2);
+                            //sumy2
+                            f = f + Math.Pow(Convert.ToDouble(dataGridView1[2, i].Value), 2);
+                            chart1.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView1[0, i].Value), dataGridView1[2, i].Value);
+                            if (i == 0 || i == dataGridView1.RowCount - 1)
+                                chart1.Series["Series2"].Points.AddXY(Convert.ToDouble(dataGridView1[0, i].Value), dataGridView1[2, i].Value);
+                        }
                     }
                     /*R2 = ((Nxysum - xsumysum)^2)/(Nx^2sum - xsum*xsum)*(Ny^2sum - ysum*ysum)*/
                     SyrR2=(Math.Pow((dataGridView1.RowCount*a-b*c),2))/((dataGridView1.RowCount*d-Math.Pow(b,2))*(dataGridView1.RowCount*f-Math.Pow(c,2)));
                     /*Slope(b) = (NΣXY - (ΣX)(ΣY)) / (NΣX2 - (ΣX)2) Intercept(a) = (ΣY - b(ΣX)) / N */
                     SyrCalSlope = (dataGridView1.RowCount * a - b * c) / (dataGridView1.RowCount*d - Math.Pow(b, 2));
                     SyrCalIntercept=(c-SyrCalSlope*b)/dataGridView1.RowCount;
-                    chart1.Series["Series2"].Points.AddXY(Convert.ToDouble(dataGridView1[0, 0].Value), SyrCalSlope * Convert.ToDouble(dataGridView1[0, 0].Value) + SyrCalIntercept);
-                    chart1.Series["Series2"].Points.AddXY(Convert.ToDouble(dataGridView1[0, dataGridView1.RowCount - 1].Value), SyrCalSlope * Convert.ToDouble(dataGridView1[0, dataGridView1.RowCount - 1].Value) + SyrCalIntercept);
+
                     label30.Text = "R =  " + String.Format("{0:0.0000}", SyrR2);
                     if (SyrCalIntercept>=0)
                         label29.Text = "y=" + String.Format("{0:0.0000}", SyrCalSlope) + " x+" + String.Format("{0:0.0000}", SyrCalIntercept);
@@ -846,10 +869,9 @@ namespace TECAS_Static_Calcification
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    checkBox4.Checked = false;
                     return;
                 }
-                button16.Enabled = true;
-                button17.Enabled = true;
                 try
                 {
                     serialPort1.Write("VOL 0\r\n");
@@ -864,14 +886,19 @@ namespace TECAS_Static_Calcification
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    checkBox4.Checked = false;
                     return;
                 }
+                button16.Enabled = true;
+                button17.Enabled = true;
+                button18.Enabled = true;
                 
             }
             else
             {
                 button16.Enabled = false;
                 button17.Enabled = false;
+                button18.Enabled = false;
             }
 
         }
@@ -955,6 +982,11 @@ namespace TECAS_Static_Calcification
         {
             label44.Text="0 ml";
             label46.Text = "0 ml";
+            serialPort1.Write("STP\r\n");
+            System.Threading.Thread.Sleep(20);
+            serialPort1.Write("CLD INF\r\n");
+            System.Threading.Thread.Sleep(20);
+            serialPort1.Write("CLD WDR\r\n");
         }
 
         //*********************************************************************************
@@ -965,6 +997,7 @@ namespace TECAS_Static_Calcification
 
         private bool CheckExpErr()
         {
+            serialPort1.Close();
             try
             {
                 Convert.ToDouble(textBox2.Text);
@@ -1041,6 +1074,33 @@ namespace TECAS_Static_Calcification
             serialPort1.Write("VOL UL\r\n");
             System.Threading.Thread.Sleep(20);
             AccumVolInf = 0;
+            try
+            {
+                switch (comboBox1.SelectedIndex)
+                {
+                    case 0:
+                        SubSampling = 500;
+                        break;
+                    case 1:
+                        SubSampling = 1000;
+                        break;
+                    case 2:
+                        SubSampling = 2000;
+                        break;
+                    case 3:
+                        SubSampling = 3000;
+                        break;
+                    case 4:
+                        SubSampling = 4000;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Sumbsampling rate", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                serialPort1.Close();
+                return;
+            }
             //Configure DAQ
             try
             {
@@ -1070,15 +1130,18 @@ namespace TECAS_Static_Calcification
             textBox2.Enabled = false;
             textBox4.Enabled = false;
             comboBox1.Enabled = false;
-            SubSampling = Convert.ToInt16(comboBox1.SelectedItem) + 1;
+           
+            // Create a timer with a two second interval.
+            aTimer = new System.Timers.Timer(SubSampling);
+            // Hook up the Elapsed event for the timer. 
+            aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            aTimer.Enabled = true;
             timer4.Enabled = true;
         }
 
         private void timer4_Tick(object sender, EventArgs e)
         {
             timer4.Enabled = false;
-            if (Paused)
-                return;
             bool requestedExit = false;
             while (!requestedExit)
             {
@@ -1112,14 +1175,15 @@ namespace TECAS_Static_Calcification
                             label21.Text = String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
                             //******************************************************
                             label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
-                            //Write Graphs
-                            chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
-                            chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
-                            chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
-                            TimeDif = (DateTime.Now - ExpStart).TotalSeconds;
 
                             ExpTicks = 0;
                             ExpAccVal = 0;
+                            //if it is paused, do not infuse... just read ph
+                            if (Paused)
+                            {
+                                ExpState = 0;
+                                break;
+                            }                            
                             if (Deviation > 0.001 && InfStarted == false)
                             {
                                 ExpState = 2;
@@ -1153,6 +1217,9 @@ namespace TECAS_Static_Calcification
                             InfStarted = false;
                             serialPort1.Write("STP\r\n");
                             System.Threading.Thread.Sleep(20);
+                            chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
+                            chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
+                            chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
                             ExpState=0;
                             break;
                     }
@@ -1170,6 +1237,11 @@ namespace TECAS_Static_Calcification
                 }
             }
             timer4.Enabled = true;
+        }
+
+        private void OnTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            TimeDif = (DateTime.Now - ExpStart).TotalSeconds;
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
@@ -1213,6 +1285,7 @@ namespace TECAS_Static_Calcification
             serialPort1.Close();
             timer4.Enabled = false;
             aTimer.Enabled = false;
+            aTimer.Enabled = false;
             button13.Enabled = false;
             button15.Enabled = false;
             button14.Enabled = true;
@@ -1231,8 +1304,7 @@ namespace TECAS_Static_Calcification
                 sw.Write(_FirstLine);
                 for (int i = 0; i < chart4.Series["Series1"].Points.Count; i++)
                 {
-                    if (i % SubSampling == 0)
-                        sw.Write("," + chart4.Series["Series1"].Points[i].XValue + "," + chart4.Series["Series1"].Points[i].YValues[0] + ",,," + chart4.Series["Series2"].Points[i].XValue + "," + chart4.Series["Series2"].Points[i].YValues[0] + ",,," + chart4.Series["Series3"].Points[i].XValue + "," + chart4.Series["Series3"].Points[i].YValues[0] + "\n");
+                    sw.Write("," + chart4.Series["Series1"].Points[i].XValue + "," + chart4.Series["Series1"].Points[i].YValues[0] + ",,," + chart4.Series["Series2"].Points[i].XValue + "," + chart4.Series["Series2"].Points[i].YValues[0] + ",,," + chart4.Series["Series3"].Points[i].XValue + "," + chart4.Series["Series3"].Points[i].YValues[0] + "\n");
                 }
                 sw.Close();
                 Paused = false;
@@ -1262,6 +1334,7 @@ namespace TECAS_Static_Calcification
             if (serialPort1.IsOpen)
                 serialPort1.Close();
         }
+
 
         //*********************************************************************************
         //***********************************END*******************************************
