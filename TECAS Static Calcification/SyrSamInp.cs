@@ -26,6 +26,7 @@ namespace TECAS_Static_Calcification
             catch (Exception h)
             {
                 MessageBox.Show("Please provide numbers only!");
+                return;
             }
             TECAS.State = 4;
             this.Hide();
