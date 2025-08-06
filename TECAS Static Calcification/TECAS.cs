@@ -48,7 +48,6 @@ namespace TECAS_Static_Calcification
         DateTime ExpStart;
         bool Paused = false;
 
-
         //***************************
 
         public TECAS()
@@ -65,6 +64,17 @@ namespace TECAS_Static_Calcification
             //disable units in grid1
             dataGridView1.Columns[3].ReadOnly = true;
             //disable
+            /*chart1.Series.Add("Series1");
+            chart1.Series.Add("Series2");
+            chart2.Series.Add("Series1");
+            chart3.Series.Add("Series1");
+            chart3.Series.Add("Series2");
+            chart4.Series.Add("Series1");
+            chart4.Series.Add("Series2");
+            chart4.Series.Add("Series3");
+            chart4.Series.Add("Series4");*/
+
+
         }
         
         //*********************************************************************************
@@ -147,6 +157,7 @@ namespace TECAS_Static_Calcification
                     MessageBox.Show("Error opening DAQ");
                     return;
                 }
+                chart3.Series.Clear();
                 timer3.Enabled = true;
             }
             else
@@ -262,6 +273,7 @@ namespace TECAS_Static_Calcification
                     pHSampleNo = 0;
                     pHCalState = 0;
                     pHCal = true;
+                    button6.Enabled = true;
                     checkBox2.Checked = true;
                     return;
             }
@@ -273,6 +285,7 @@ namespace TECAS_Static_Calcification
             {
                 if (openFileDialog2.ShowDialog() == DialogResult.OK)
                 {
+                    chart3.Series.Clear();
                     _LoadCal = File.ReadAllText(openFileDialog2.FileName);
                     pHCalSlope=Convert.ToDouble(_LoadCal.Split('#')[0]);
                     pHCalIntercept = Convert.ToDouble(_LoadCal.Split('#')[1]);
@@ -287,6 +300,7 @@ namespace TECAS_Static_Calcification
                     chart3.Series["Series1"].Points.AddXY(14, pHCalSlope * 14 + pHCalIntercept);
                     button12.Enabled = true;
                     pHCal = true;
+                    button6.Enabled = true;
                     checkBox2.Checked = true;
                 }
             }
@@ -356,6 +370,7 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show("pH Calibration not done!");
                 return;
             }
+            chart2.Series.Clear();
             pHMeasureStart = DateTime.Now;
             chart2.ChartAreas[0].AxisY.LabelStyle.Format = "#.###";
             chart2.ChartAreas[0].AxisX.LabelStyle.Format = "#.###";
@@ -413,6 +428,7 @@ namespace TECAS_Static_Calcification
         private void button7_Click(object sender, EventArgs e)
         {
             timer2.Enabled = false;
+            chart2.Series.Clear();
         }
         //*********************************************************************************
         //***********************************END*******************************************
@@ -501,6 +517,7 @@ namespace TECAS_Static_Calcification
                     MessageBox.Show("Error opening port");
                     return;
                 }
+                chart1.Series.Clear();
                 SampleNo = 0;
                 State = 0;
                 serialPort1.Write("STP\r\n");
@@ -637,6 +654,7 @@ namespace TECAS_Static_Calcification
             {
                 if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
+                    chart1.Series.Clear();
                     _LoadCal = File.ReadAllText(openFileDialog1.FileName);
                     /*COM#Diameter#Capacity#x1#y1#x2#y2#slope#intercept#r2#*/
                     comboBox22.SelectedIndex = Convert.ToInt16(_LoadCal.Split('#')[0]);
@@ -725,7 +743,11 @@ namespace TECAS_Static_Calcification
         {
             if (Paused)
             {
+                button13.Enabled = true;
+                button15.Enabled = true;
+                button14.Enabled = false;
                 timer4.Enabled = true;
+                textBox2.Enabled = false;
                 return;
             }
             if (!CheckExpErr())
@@ -913,11 +935,8 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show(ex.Message, "Error Writing File", MessageBoxButtons.OK, MessageBoxIcon.Error);
             } 
             //End Export Data
+            chart4.Series.Clear();
         }
-
-
-
-
 
         //*********************************************************************************
         //***********************************END*******************************************
