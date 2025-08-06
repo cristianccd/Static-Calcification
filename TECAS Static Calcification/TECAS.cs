@@ -1075,6 +1075,15 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show("Setpoint is not in a valid format","Error!",MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+            try
+            {
+                Convert.ToInt16(textBox4.Text);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Initial time", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
             if (checkBox1.Checked != true || checkBox2.Checked != true)
             {
                 MessageBox.Show("Calibrations not done, please load the calibration files!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1098,7 +1107,8 @@ namespace TECAS_Static_Calcification
                 Paused = false;
                 button14.Text = "Start";
                 timer4.Enabled = true;
-                textBox2.Enabled = false;                
+                textBox2.Enabled = false;
+                textBox4.Enabled = false;
                 return;
             }
             if (!CheckExpErr())
@@ -1175,7 +1185,6 @@ namespace TECAS_Static_Calcification
             label35.Text = String.Format("{0:0.0000}", SyrCalSlope);
             chart4.ChartAreas[0].AxisY.LabelStyle.Format = "#.###";
             chart4.ChartAreas[0].AxisX.LabelStyle.Format = "#";
-            ExpStart = DateTime.Now;
             button13.Enabled = true;
             button15.Enabled = true;
             button14.Enabled = false;
@@ -1183,12 +1192,14 @@ namespace TECAS_Static_Calcification
                 series.Points.Clear();
             ExpState = 0;
             textBox2.Enabled = false;
+            textBox4.Enabled = false;
             comboBox1.Enabled = false;
            
             // Create a timer with an interval.
             aTimer = new System.Timers.Timer(SubSampling);
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            ExpStart = DateTime.Now;
             aTimer.Enabled = true;
             timer4.Enabled = true;
         }
@@ -1220,20 +1231,11 @@ namespace TECAS_Static_Calcification
                             break;
                         case 1:
                             ExpAvgVal = ExpAccVal / 30;
-                            /*label13.Text = String.Format("{0:0.000000000 V}", dblValue);
-                            label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);*/
-                            //******************************************************
                             Deviation = Convert.ToDouble(textBox2.Text) - ExpAvgVal;
-                            //******************************************************                        
-                            /*label17.Text = String.Format("{0:0.0000000}", Deviation);
-                            label21.Text = String.Format("{0}", (DateTime.Now - ExpStart).Days)+ " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
-                            //******************************************************
-                            label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";*/
-
                             ExpTicks = 0;
                             ExpAccVal = 0;
                             //if it is paused, do not infuse... just read ph
-                            if (Paused)
+                            if (Paused || DateTime.Now.AddSeconds(0-Convert.ToDouble(textBox4.Text)) < ExpStart)
                             {
                                 ExpState = 0;
                                 break;
@@ -1269,11 +1271,6 @@ namespace TECAS_Static_Calcification
                                 VoltoInf = (20 - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf > 50)
                                 VoltoInf = (50 - SyrCalIntercept) / SyrCalSlope;
-                            /*VoltoInf = ((Deviation * (60 / 0.05)) - SyrCalIntercept) / SyrCalSlope;
-                            if (VoltoInf < 30)
-                                VoltoInf = (30 - SyrCalIntercept) / SyrCalSlope;
-                            if (VoltoInf > 60)
-                                VoltoInf = (60 - SyrCalIntercept) / SyrCalSlope;*/
                             serialPort1.Write("DIR INF\r\n");
                             System.Threading.Thread.Sleep(20);
                             serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");
@@ -1381,6 +1378,7 @@ namespace TECAS_Static_Calcification
             button15.Enabled = false;
             button14.Enabled = true;
             textBox2.Enabled = false;
+            textBox4.Enabled = false;
         }
 
         private void button15_Click(object sender, EventArgs e)
@@ -1396,9 +1394,10 @@ namespace TECAS_Static_Calcification
             button15.Enabled = false;
             button14.Enabled = true;
             textBox2.Enabled = true;
+            textBox4.Enabled = true;
             comboBox1.Enabled = true;
             //Export Data
-            string _FirstLine = "PH,X,Y,,VOLUME,X,Y,,DEVIATION,X,Y\n";
+            string _FirstLine = "PH Setp.:"+ textBox2.Text +",Time[s],Value,,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value,,Total Time: "+ label21.Text +"\n";
             string[] Content = new string[chart4.Series["Series1"].Points.Count];
             string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ @"\Calcification Experiments";
             try
