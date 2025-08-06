@@ -391,16 +391,15 @@ namespace TECAS_Static_Calcification
                 {
                     pHMeasureVal = pHCalSlope * dblValue + pHCalIntercept;
                     pHMeasureAvg = pHMeasureAvg + pHMeasureVal;
-                    label42.Text = String.Format("{0:0.000000000 mV}", dblValue);
+                    label42.Text = String.Format("{0:0.000000000 V}", dblValue);
                     pHMeasureTicks++;
                     if (pHMeasureTicks >= 50)//average between N samples
                     {
-                        
                         label3.Text = String.Format("{0:0.000000}", pHMeasureVal);
                         if (Convert.ToDouble(textBox3.Text) == 0)
                             label37.Text = "0.000000";
                         else
-                            label37.Text = Convert.ToString(Convert.ToDouble(textBox3.Text) - pHMeasureVal);
+                            label37.Text = String.Format("{0:0.000000}", Convert.ToString(Convert.ToDouble(textBox3.Text) - pHMeasureVal));
                         chart2.Series["Series1"].Points.AddXY((DateTime.Now-pHMeasureStart).TotalSeconds,pHMeasureVal);
                         if ((DateTime.Now - pHMeasureStart).TotalSeconds>30)
                             chart2.ChartAreas[0].AxisX.ScaleView.Position = (DateTime.Now-pHMeasureStart).TotalSeconds - 30;
@@ -732,6 +731,8 @@ namespace TECAS_Static_Calcification
                     System.Threading.Thread.Sleep(20);
                     serialPort1.Write("CLD WDR\r\n");
                     System.Threading.Thread.Sleep(20);
+                    serialPort1.Write("DIA " + textBox21.Text + "\r\n");
+                    System.Threading.Thread.Sleep(20);
                 }
                 catch (Exception ex)
                 {
@@ -765,11 +766,9 @@ namespace TECAS_Static_Calcification
             }
             serialPort1.Write("STP\r\n");
             System.Threading.Thread.Sleep(20);
-            serialPort1.Write("DIA " + textBox21.Text + "\r\n");
-            System.Threading.Thread.Sleep(20);
             serialPort1.Write("DIR INF\r\n");
             System.Threading.Thread.Sleep(20);
-            serialPort1.Write("RAT 100 MH\r\n"); //Rate fixed
+            serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
             System.Threading.Thread.Sleep(20);
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("RUN\r\n");
@@ -805,12 +804,11 @@ namespace TECAS_Static_Calcification
             }
             serialPort1.Write("STP\r\n");
             System.Threading.Thread.Sleep(20);
-            serialPort1.Write("DIA " + textBox21.Text + "\r\n");
-            System.Threading.Thread.Sleep(20);
+            /*serialPort1.Write("DIA " + textBox21.Text + "\r\n");
+            System.Threading.Thread.Sleep(20);*/
             serialPort1.Write("DIR WDR\r\n");
             System.Threading.Thread.Sleep(20);
-            serialPort1.Write("RAT 50 MH\r\n"); //Rate fixed
-            System.Threading.Thread.Sleep(20);
+            serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("RUN\r\n");
             System.Threading.Thread.Sleep(20);
@@ -824,8 +822,6 @@ namespace TECAS_Static_Calcification
             _Reading = serialPort1.ReadExisting();
             label46.Text = _Reading.Substring(11, 5).ToLower() + " " + _Reading.Substring(16, 2).ToLower();
             serialPort1.Write("STP\r\n");
-            System.Threading.Thread.Sleep(20);
-            serialPort1.Write("DIR INF\r\n");
             System.Threading.Thread.Sleep(20);
             serialPort1.Close();
         }
@@ -885,9 +881,11 @@ namespace TECAS_Static_Calcification
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("CLD WDR\r\n");
             System.Threading.Thread.Sleep(20);
+            serialPort1.Write("DIR INF\r\n");
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("DIA " + textBox21.Text + "\r\n");
             System.Threading.Thread.Sleep(20);
-            serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
+            serialPort1.Write("RAT 800 MH\r\n"); //Rate fixed
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("VOL UL\r\n"); //Rate fixed
             System.Threading.Thread.Sleep(20);
@@ -904,6 +902,7 @@ namespace TECAS_Static_Calcification
             catch (LabJackUDException h)
             {
                 MessageBox.Show("Error opening DAQ");
+                serialPort1.Close();
                 return;
             }
             label23.Text = String.Format("{0:0.000000}", pHCalSlope);
@@ -945,10 +944,10 @@ namespace TECAS_Static_Calcification
                 {
                     ExpTicks++;
                     ExpAccVal = ExpAccVal + (dblValue * pHCalSlope + pHCalIntercept);
-                    label13.Text = String.Format("{0:0.000000000 mV}", dblValue);
+                    label13.Text = String.Format("{0:0.000000000 V}", dblValue);
                     if (ExpTicks >= 10)//average between N samples
                     {
-                        ExpAvgVal = ExpAccVal / 50;
+                        ExpAvgVal = ExpAccVal / 10;
                         label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);
                         chart4.Series["Series1"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, ExpAvgVal);
                         serialPort1.ReadExisting();

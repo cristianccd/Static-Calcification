@@ -7,3 +7,8 @@ C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\
 C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe
 C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\Release\TECAS Static Calcification.pdb
 C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\Release\TECAS Static Calcification.csprojResolveAssemblyReference.cache
+C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\bin\Release\TECAS Static Calcification.exe.config
+C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\bin\Release\TECAS Static Calcification.exe.manifest
+C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\bin\Release\TECAS Static Calcification.application
+C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe.manifest
+C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\Release\TECAS Static Calcification.application

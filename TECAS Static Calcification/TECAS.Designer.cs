@@ -355,9 +355,9 @@
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(208, 57);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(35, 13);
+            this.label13.Size = new System.Drawing.Size(26, 13);
             this.label13.TabIndex = 21;
-            this.label13.Text = "0 mV";
+            this.label13.Text = "0 V";
             // 
             // label41
             // 
@@ -1317,9 +1317,9 @@
             this.label42.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(161)));
             this.label42.Location = new System.Drawing.Point(73, 60);
             this.label42.Name = "label42";
-            this.label42.Size = new System.Drawing.Size(35, 13);
+            this.label42.Size = new System.Drawing.Size(26, 13);
             this.label42.TabIndex = 23;
-            this.label42.Text = "0 mV";
+            this.label42.Text = "0 V";
             // 
             // label43
             // 
