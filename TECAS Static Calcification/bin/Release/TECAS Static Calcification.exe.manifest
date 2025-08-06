@@ -48,14 +48,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="TECAS Static Calcification.exe" size="806400">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="TECAS Static Calcification.exe" size="806912">
       <assemblyIdentity name="TECAS Static Calcification" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>vQsrWG6ijpNdZBJ6R73TuI7ZgLQ=</dsig:DigestValue>
+        <dsig:DigestValue>obPwYMc6yj5Im8d5haDV54q1BLo=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

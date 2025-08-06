@@ -147,7 +147,7 @@ namespace TECAS_Static_Calcification
                         u3 = new U3(LJUD.CONNECTION.USB, "1", true); // Connection through USB
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 15, 16);//first 4 FIO analog b0000000000001111
-                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN, 0, 0, 0, 0);//Request AIN0
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN, 0, 0, 0, 0);//Request AIN0 it can also be 0, 0, 32, 0 for better resolution in other port
                 }
                 catch (LabJackUDException)
                 {
@@ -245,6 +245,8 @@ namespace TECAS_Static_Calcification
                     MessageBox.Show("Finished, please check the results...", "Finished", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     //auxiliar variables to obtain results
                     double a = 0, b = 0, c = 0, d = 0, f = 0;
+
+
                     for (int i = 0; i < dataGridView2.RowCount; i++)
                     {
                         //sumxy
@@ -272,6 +274,8 @@ namespace TECAS_Static_Calcification
                     //Graph
                     chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[1,0].Value),pHCalSlope*Convert.ToDouble(dataGridView2[1,0].Value)+pHCalIntercept);
                     chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[1, dataGridView2.RowCount-1].Value), pHCalSlope * Convert.ToDouble(dataGridView2[1, dataGridView2.RowCount - 1].Value) + pHCalIntercept);
+
+
                     panel1.Visible = true;
                     button8.Enabled = true;
                     if (dataGridView2.RowCount <= 2)
@@ -332,10 +336,10 @@ namespace TECAS_Static_Calcification
                     pHCalIntercept = Convert.ToDouble(_LoadCal.Split('#')[1]);
                     pHR2 = Convert.ToDouble(_LoadCal.Split('#')[2]);
                     if(pHCalIntercept>=0)
-                        label6.Text = "y="+pHCalSlope.ToString()+" x+"+pHCalIntercept.ToString();
+                        label6.Text = "y=" + String.Format("{0:0.0000}", pHCalSlope) + " x+" + String.Format("{0:0.0000}", pHCalIntercept);
                     else
-                        label6.Text = "y=" + pHCalSlope.ToString() + " x" + pHCalIntercept.ToString();
-                    label5.Text = "R  =" + pHR2;
+                        label6.Text = "y=" + String.Format("{0:0.0000}", pHCalSlope) + " x" + String.Format("{0:0.0000}", pHCalIntercept);
+                    label5.Text = "R  =" + String.Format("{0:0.0000}", pHR2);
                     panel1.Visible = true;
                     chart3.Series["Series1"].Points.AddXY(0, pHCalIntercept);
                     chart3.Series["Series1"].Points.AddXY(14, pHCalSlope * 14 + pHCalIntercept);
@@ -472,8 +476,8 @@ namespace TECAS_Static_Calcification
                 }
                 if (ioType == LJUD.IO.GET_AIN)
                 {
-                    pHMeasureVal = pHCalSlope * dblValue + pHCalIntercept;
-                    pHMeasureAvg = pHMeasureAvg + pHMeasureVal;
+                    pHMeasureVal = pHCalSlope * dblValue + pHCalIntercept; //(dblValue - pHCalIntercept) / pHCalSlope;//
+                    pHMeasureAvg += pHMeasureVal;
                     label42.Text = String.Format("{0:0.000000000 V}", dblValue);
                     pHMeasureTicks++;
                     if (pHMeasureTicks >= 30)//average between N samples
@@ -484,11 +488,11 @@ namespace TECAS_Static_Calcification
                         else
                             label37.Text = String.Format("{0:0.000000}", Convert.ToString(Convert.ToDouble(textBox3.Text) - pHMeasureVal));
                         chart2.Series["Series1"].Points.AddXY((DateTime.Now-pHMeasureStart).TotalSeconds,pHMeasureVal);
-                        chart2.ChartAreas[0].AxisY.ScaleView.Position = pHMeasureAvg/30 - 0.25;
-                        chart2.ChartAreas[0].AxisY.ScaleView.Size = 0.5;
+                        //chart2.ChartAreas[0].AxisY.ScaleView.Position = pHMeasureAvg/30 - 0.5;
+                        //chart2.ChartAreas[0].AxisY.ScaleView.Size = 1;
 
-                        if ((DateTime.Now - pHMeasureStart).TotalSeconds>30)
-                            chart2.ChartAreas[0].AxisX.ScaleView.Position = (DateTime.Now-pHMeasureStart).TotalSeconds - 30;
+                        if ((DateTime.Now - pHMeasureStart).TotalSeconds>300)
+                            chart2.ChartAreas[0].AxisX.ScaleView.Position = (DateTime.Now-pHMeasureStart).TotalSeconds - 300;
                         pHMeasureAvg = 0;
                         pHMeasureTicks = 0;
                     }
@@ -1250,7 +1254,7 @@ namespace TECAS_Static_Calcification
                     { 
                         case 0:
                             ExpTicks++;
-                            ExpAccVal = ExpAccVal + (dblValue * pHCalSlope + pHCalIntercept);
+                            ExpAccVal += (dblValue * pHCalSlope + pHCalIntercept);//ExpAccVal + (dblValue - pHCalIntercept) / pHCalSlope;
                             if (ExpTicks >= 30)
                                 ExpState = 1;
                             break;
@@ -1382,11 +1386,13 @@ namespace TECAS_Static_Calcification
                     chart4.Series["Series1"].Enabled = true;
                     chart4.Series["Series2"].Enabled = false;
                     chart4.Series["Series3"].Enabled = false;
+                    chart4.ChartAreas[0].AxisY.Title = "pH";                    
                     break;
                 case 0:
                     chart4.Series["Series1"].Enabled = true;
                     chart4.Series["Series2"].Enabled = false;
                     chart4.Series["Series3"].Enabled = false;
+                    chart4.ChartAreas[0].AxisY.Title = "Volume [ul]"; 
                     break;
                 case 1:
                     chart4.Series["Series1"].Enabled = false;
@@ -1397,6 +1403,7 @@ namespace TECAS_Static_Calcification
                     chart4.Series["Series1"].Enabled = false;
                     chart4.Series["Series2"].Enabled = false;
                     chart4.Series["Series3"].Enabled = true;
+                    chart4.ChartAreas[0].AxisY.Title = "pH Deviation"; 
                     break;
             }
         }

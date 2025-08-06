@@ -56,6 +56,7 @@
             this.saveFileDialog2 = new System.Windows.Forms.SaveFileDialog();
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.checkBox5 = new System.Windows.Forms.CheckBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label49 = new System.Windows.Forms.Label();
             this.label51 = new System.Windows.Forms.Label();
@@ -170,7 +171,6 @@
             this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.checkBox5 = new System.Windows.Forms.CheckBox();
             this.tabPage4.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel11.SuspendLayout();
@@ -261,6 +261,17 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Static pH Experiment";
             this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // checkBox5
+            // 
+            this.checkBox5.AutoSize = true;
+            this.checkBox5.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox5.Location = new System.Drawing.Point(58, 62);
+            this.checkBox5.Name = "checkBox5";
+            this.checkBox5.Size = new System.Drawing.Size(115, 17);
+            this.checkBox5.TabIndex = 32;
+            this.checkBox5.Text = "Automatic Refill";
+            this.checkBox5.UseVisualStyleBackColor = true;
             // 
             // textBox4
             // 
@@ -604,6 +615,7 @@
             // 
             // chart4
             // 
+            chartArea1.AxisX.Title = "Time [s]";
             chartArea1.Name = "ChartArea1";
             this.chart4.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
@@ -1269,8 +1281,11 @@
             // chart2
             // 
             chartArea3.AxisX.Minimum = 0D;
-            chartArea3.AxisX.ScaleView.Size = 30D;
+            chartArea3.AxisX.ScaleView.Size = 300D;
+            chartArea3.AxisX.Title = "Time [s]";
             chartArea3.AxisY.Minimum = 0D;
+            chartArea3.AxisY.ScaleView.Zoomable = false;
+            chartArea3.AxisY.Title = "pH";
             chartArea3.AxisY2.Maximum = 14D;
             chartArea3.AxisY2.Minimum = 0D;
             chartArea3.Name = "ChartArea1";
@@ -1437,12 +1452,15 @@
             chartArea4.AxisX.Maximum = 14D;
             chartArea4.AxisX.Minimum = 0D;
             chartArea4.AxisX.MinorGrid.Interval = 0.5D;
+            chartArea4.AxisX.Title = "pH";
+            chartArea4.AxisY.LabelStyle.Interval = 0D;
             chartArea4.AxisY.Minimum = 0D;
+            chartArea4.AxisY.Title = "Measured V [V]";
             chartArea4.Name = "ChartArea1";
             this.chart3.ChartAreas.Add(chartArea4);
             legend4.Name = "Legend1";
             this.chart3.Legends.Add(legend4);
-            this.chart3.Location = new System.Drawing.Point(357, 122);
+            this.chart3.Location = new System.Drawing.Point(357, 101);
             this.chart3.Name = "chart3";
             series7.BorderWidth = 2;
             series7.ChartArea = "ChartArea1";
@@ -1458,7 +1476,7 @@
             series8.Name = "Series2";
             this.chart3.Series.Add(series7);
             this.chart3.Series.Add(series8);
-            this.chart3.Size = new System.Drawing.Size(327, 169);
+            this.chart3.Size = new System.Drawing.Size(327, 190);
             this.chart3.TabIndex = 86;
             this.chart3.Text = "chart3";
             // 
@@ -1578,25 +1596,15 @@
             this.tabControl1.Size = new System.Drawing.Size(698, 456);
             this.tabControl1.TabIndex = 0;
             // 
-            // checkBox5
-            // 
-            this.checkBox5.AutoSize = true;
-            this.checkBox5.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox5.Location = new System.Drawing.Point(58, 62);
-            this.checkBox5.Name = "checkBox5";
-            this.checkBox5.Size = new System.Drawing.Size(115, 17);
-            this.checkBox5.TabIndex = 32;
-            this.checkBox5.Text = "Automatic Refill";
-            this.checkBox5.UseVisualStyleBackColor = true;
-            // 
             // TECAS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(713, 472);
             this.Controls.Add(this.tabControl1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximumSize = new System.Drawing.Size(729, 510);
+            this.MinimumSize = new System.Drawing.Size(729, 510);
             this.Name = "TECAS";
             this.Text = "TECAS Calcification Experiment";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TECAS_FormClosing);
