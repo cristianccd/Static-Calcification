@@ -50,7 +50,7 @@ namespace TECAS_Static_Calcification
         bool InfStarted = false, WdrStarted=false, TimeMix=false;
         bool Paused = false;
         int ExpState = 0;
-        double AccumVolInf = 0, SubSampling=0;
+        double AccumVolInf = 0, SubSampling=0, WdrVol=1000;
         static private System.Timers.Timer aTimer;
 
         private class StateObjClass
@@ -612,15 +612,15 @@ namespace TECAS_Static_Calcification
                 SampleNo = 0;
                 State = 0;
                 serialPort1.Write("STP\r\n");
-                System.Threading.Thread.Sleep(15);
+                System.Threading.Thread.Sleep(20);
                 serialPort1.Write("CLD INF\r\n");
-                System.Threading.Thread.Sleep(15);
+                System.Threading.Thread.Sleep(20);
                 serialPort1.Write("CLD WDR\r\n");
-                System.Threading.Thread.Sleep(15);
+                System.Threading.Thread.Sleep(20);
                 serialPort1.Write("DIA " + textBox21.Text + "\r\n");
-                System.Threading.Thread.Sleep(15);
+                System.Threading.Thread.Sleep(20);
                 serialPort1.Write("RAT 500 MH\r\n");
-                System.Threading.Thread.Sleep(15);
+                System.Threading.Thread.Sleep(20);
                 foreach (var series in chart1.Series)
                     series.Points.Clear();
                 //Block controls
@@ -660,14 +660,14 @@ namespace TECAS_Static_Calcification
                         {
                             //set the infuse volumes according to the number of the sample
                             serialPort1.Write("VOL " + dataGridView1[0, SampleNo].Value.ToString() + "\r\n");
-                            System.Threading.Thread.Sleep(15);
+                            System.Threading.Thread.Sleep(20);
                             //if ml, set to ml
                             if (dataGridView1[1, SampleNo].Value.ToString() == "ml")
                                 serialPort1.Write("VOL ML\r\n");
                             //otherwise ul
                             else
                                 serialPort1.Write("VOL UL\r\n");
-                            System.Threading.Thread.Sleep(15);
+                            System.Threading.Thread.Sleep(20);
                             serialPort1.Write("RUN\r\n"); //start running
                             State = 1; //switch state to running, needs to wait the ammount desired
                             SampleNo++;
@@ -698,7 +698,7 @@ namespace TECAS_Static_Calcification
                 case 1:
                     serialPort1.ReadExisting();
                     serialPort1.Write("DIS\r\n");
-                    System.Threading.Thread.Sleep(15);
+                    System.Threading.Thread.Sleep(20);
                     _Reading=serialPort1.ReadExisting();
                     label33.Text = "Current Volume: " + _Reading.Substring(5, 5) + _Reading.Substring(16, 2).ToLower();
                     if (Convert.ToDouble(_Reading.Substring(5, 5)) >= Convert.ToDouble(dataGridView1[0, SampleNo-1].Value.ToString()))
@@ -920,15 +920,15 @@ namespace TECAS_Static_Calcification
                 try
                 {
                     serialPort1.Write("VOL 0\r\n");
-                    System.Threading.Thread.Sleep(15);
+                    System.Threading.Thread.Sleep(20);
                     serialPort1.Write("CLD INF\r\n");
-                    System.Threading.Thread.Sleep(15);
+                    System.Threading.Thread.Sleep(20);
                     serialPort1.Write("CLD WDR\r\n");
-                    System.Threading.Thread.Sleep(15);
+                    System.Threading.Thread.Sleep(20);
                     serialPort1.Write("DIA " + textBox21.Text + "\r\n");
-                    System.Threading.Thread.Sleep(15);
+                    System.Threading.Thread.Sleep(20);
                     serialPort1.Write("RAT 500 MH\r\n");
-                    System.Threading.Thread.Sleep(15);
+                    System.Threading.Thread.Sleep(20);
                 }
                 catch (Exception ex)
                 {
@@ -977,22 +977,22 @@ namespace TECAS_Static_Calcification
                 return;
             }
             serialPort1.Write("STP\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("DIR INF\r\n");
-            System.Threading.Thread.Sleep(15);
-            serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
+            serialPort1.Write("RAT 800 MH\r\n"); //Rate fixed
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("RUN\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
         }
 
         private void button17_MouseUp(object sender, MouseEventArgs e)
         {
             serialPort1.Write("STP\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             _Reading = serialPort1.ReadExisting();
             serialPort1.Write("DIS\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             _Reading = serialPort1.ReadExisting();
             label44.Text = String.Format("{0:0.0000}",(Convert.ToDouble(_Reading.Substring(5, 5))))+ " " + _Reading.Substring(16, 2).ToLower(); 
             serialPort1.Close();
@@ -1014,24 +1014,24 @@ namespace TECAS_Static_Calcification
                 return;
             }
             serialPort1.Write("STP\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("DIR WDR\r\n");
-            System.Threading.Thread.Sleep(15);
-            serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
+            serialPort1.Write("RAT 800 MH\r\n"); //Rate fixed
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("RUN\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
         }
 
         private void button16_MouseUp(object sender, MouseEventArgs e)
         {
             _Reading = serialPort1.ReadExisting();
             serialPort1.Write("DIS\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             _Reading = serialPort1.ReadExisting();
-            label46.Text = String.Format("{0:0.0000}",(Convert.ToDouble(_Reading.Substring(11, 5)))) + " " + _Reading.Substring(16, 2).ToLower();//_Reading.Substring(11, 5).ToLower() + " " + _Reading.Substring(16, 2).ToLower();
+            label46.Text = String.Format("{0:0.0000}", (Convert.ToDouble(_Reading.Substring(11, 5)))) + " "+ _Reading.Substring(16, 2).ToLower();//_Reading.Substring(11, 5).ToLower() + " " + _Reading.Substring(16, 2).ToLower();
             serialPort1.Write("STP\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Close();
         }
 
@@ -1053,9 +1053,9 @@ namespace TECAS_Static_Calcification
             label44.Text="0 ml";
             label46.Text = "0 ml";
             serialPort1.Write("STP\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("CLD INF\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("CLD WDR\r\n");
             serialPort1.Close();
         }
@@ -1081,20 +1081,6 @@ namespace TECAS_Static_Calcification
             if (checkBox1.Checked != true || checkBox2.Checked != true)
             {
                 MessageBox.Show("Calibrations not done, please load the calibration files!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            try
-            {
-                Convert.ToDouble(textBox4.Text);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Mixing time is not in a valid format", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            if(Convert.ToDouble(textBox4.Text) < 0 || Convert.ToDouble(textBox4.Text) > 60)
-            {
-                MessageBox.Show("Please choose a mixing time between 0 and 60 seconds!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             if (comboBox1.SelectedIndex==-1)
@@ -1131,19 +1117,19 @@ namespace TECAS_Static_Calcification
                 return;
             }
             serialPort1.Write("STP\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("CLD INF\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("CLD WDR\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("DIR INF\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("DIA " + textBox21.Text + "\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("RAT 800 MH\r\n"); //Rate fixed
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             serialPort1.Write("VOL UL\r\n");
-            System.Threading.Thread.Sleep(15);
+            System.Threading.Thread.Sleep(20);
             AccumVolInf = 0;
             try
             {
@@ -1199,7 +1185,6 @@ namespace TECAS_Static_Calcification
                 series.Points.Clear();
             ExpState = 0;
             textBox2.Enabled = false;
-            textBox4.Enabled = false;
             comboBox1.Enabled = false;
            
             // Create a timer with an interval.
@@ -1243,7 +1228,7 @@ namespace TECAS_Static_Calcification
                             Deviation = Convert.ToDouble(textBox2.Text) - ExpAvgVal;
                             //******************************************************                        
                             label17.Text = String.Format("{0:0.0000000}", Deviation);
-                            label21.Text = String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
+                            label21.Text = String.Format("{0}", (DateTime.Now - ExpStart).Days)+ " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
                             //******************************************************
                             label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
 
@@ -1255,13 +1240,13 @@ namespace TECAS_Static_Calcification
                                 ExpState = 0;
                                 break;
                             }                            
-                            if (Deviation > 0.001 && InfStarted == false && WdrStarted==false && TimeMix==false)
+                            if (Deviation > 0.001 && InfStarted == false && TimeMix==false)
                             {
                                 ExpState = 2;
                                 serialPort1.Write("CLD INF\r\n");
-                                System.Threading.Thread.Sleep(15);
+                                System.Threading.Thread.Sleep(20);
                                 serialPort1.Write("CLD WDR\r\n");
-                                System.Threading.Thread.Sleep(15);
+                                System.Threading.Thread.Sleep(20);
                                 break;
                             }
                             if (InfStarted)
@@ -1269,15 +1254,9 @@ namespace TECAS_Static_Calcification
                                 ExpState = 3;
                                 break;
                             }
-                            if (WdrStarted)
-                            {
-                                ExpState = 4;
-                                break;
-                            }
                             if (TimeMix)
                             {
                                 if (DateTime.Now.AddSeconds(-10) > ExpWaitTime)
-
                                     TimeMix = false;
                                 ExpState = 0;
                                 break;
@@ -1289,46 +1268,38 @@ namespace TECAS_Static_Calcification
                             ExpWaitTime=DateTime.Now;
                             VoltoInf = ((Deviation * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf < 10)
-                                VoltoInf = 10;
+                                VoltoInf = (10 - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf > 50)
-                                VoltoInf = 50;
+                                VoltoInf = (50 - SyrCalIntercept) / SyrCalSlope;
                             serialPort1.Write("DIR INF\r\n");
-                            System.Threading.Thread.Sleep(15);
+                            System.Threading.Thread.Sleep(20);
                             serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");
                             AccumVolInf = AccumVolInf + VoltoInf;
-                            System.Threading.Thread.Sleep(15);
+                            System.Threading.Thread.Sleep(20);
                             serialPort1.Write("RUN\r\n");
-                            System.Threading.Thread.Sleep(15);
+                            System.Threading.Thread.Sleep(20);
                             ExpState=0;
                             break;
                         case 3:
                             _Reading = serialPort1.ReadExisting();
                             serialPort1.Write("DIS\r\n");
-                            System.Threading.Thread.Sleep(15);
+                            System.Threading.Thread.Sleep(20);
                             _Reading = serialPort1.ReadExisting();
                             if (Convert.ToDouble(_Reading.Substring(5, 5)) >= VoltoInf)
                             {
                                 InfStarted = false;
-                                WdrStarted = true;
-                                serialPort1.Write("DIR WDR\r\n");
-                                System.Threading.Thread.Sleep(15);
-                                serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");
-                                System.Threading.Thread.Sleep(15);
-                                serialPort1.Write("RUN\r\n");
-                                System.Threading.Thread.Sleep(15);                              
-                                ExpState = 0;
-                            }
-                            break;
-                        case 4:
-                            _Reading = serialPort1.ReadExisting();
-                            serialPort1.Write("DIS\r\n");
-                            System.Threading.Thread.Sleep(15);
-                            _Reading = serialPort1.ReadExisting();
-                            if (Convert.ToDouble(_Reading.Substring(11, 5)) >= VoltoInf)
-                            {
-                                WdrStarted = false;
-                                ExpState = 0;
+                                if (AccumVolInf > WdrVol)
+                                {
+                                    WdrVol = WdrVol + 1000;
+                                    serialPort1.Write("DIR WDR\r\n");
+                                    System.Threading.Thread.Sleep(20);
+                                    serialPort1.Write("VOL " + String.Format("{0:0000}", (1000 - SyrCalIntercept) / SyrCalSlope) + "\r\n");
+                                    System.Threading.Thread.Sleep(20);
+                                    serialPort1.Write("RUN\r\n");
+                                    System.Threading.Thread.Sleep(20);
+                                }
                                 TimeMix = true;
+                                ExpState = 0;
                             }
                             break;
                     }
@@ -1408,7 +1379,6 @@ namespace TECAS_Static_Calcification
             button15.Enabled = false;
             button14.Enabled = true;
             textBox2.Enabled = true;
-            textBox4.Enabled = true;
             comboBox1.Enabled = true;
             //Export Data
             string _FirstLine = "PH,X,Y,,VOLUME,X,Y,,DEVIATION,X,Y\n";
