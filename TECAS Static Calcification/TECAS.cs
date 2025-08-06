@@ -744,24 +744,15 @@ namespace TECAS_Static_Calcification
                     timer1.Enabled = true;    
                     break;
                 case 1:
-                    try
-                    {
-                        serialPort1.ReadExisting();
-                        serialPort1.Write("DIS\r\n");
-                        System.Threading.Thread.Sleep(20);
-                        _Reading = serialPort1.ReadExisting();
-                        label33.Text = "Current Volume: " + _Reading.Substring(5, 5) + _Reading.Substring(16, 2).ToLower();
-                        //Infusion completed -> State 2
-                        if (Convert.ToDouble(_Reading.Substring(5, 5)) >= Convert.ToDouble(dataGridView1[0, SampleNo - 1].Value.ToString()))
-                            State = 2;//input volume form2
-                        timer1.Enabled = true;
-                    }
-                    catch (Exception h)
-                    {
-                        MessageBox.Show("There was a problem with the pump: " + h.Message, "Syringe Pump", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        CancelCalSyr();
-                        return;
-                    }
+                    serialPort1.ReadExisting();
+                    serialPort1.Write("DIS\r\n");
+                    System.Threading.Thread.Sleep(20);
+                    _Reading=serialPort1.ReadExisting();
+                    label33.Text = "Current Volume: " + _Reading.Substring(5, 5) + _Reading.Substring(16, 2).ToLower();
+                    //Infusion completed -> State 2
+                    if (Convert.ToDouble(_Reading.Substring(5, 5)) >= Convert.ToDouble(dataGridView1[0, SampleNo-1].Value.ToString()))
+                        State = 2;//input volume form2
+                    timer1.Enabled = true;
                     break;
                 case 2:
                     _SampleUnits = dataGridView1[1, SampleNo-1].Value.ToString();
@@ -874,11 +865,6 @@ namespace TECAS_Static_Calcification
         //Cancel sampling
         private void button20_Click(object sender, EventArgs e)
         {
-            CancelCalSyr();
-        }
-
-        public void CancelCalSyr()
-        {
             timer1.Enabled = false;
             dataGridView1.Enabled = true;
             comboBox22.Enabled = true;
@@ -897,7 +883,7 @@ namespace TECAS_Static_Calcification
                 button2.Enabled = true;
             button3.Enabled = true;
             button20.Enabled = false;
-            serialPort1.Close();        
+            serialPort1.Close();
         }
 
         //Open calibration
@@ -1005,8 +991,6 @@ namespace TECAS_Static_Calcification
                     System.Threading.Thread.Sleep(20);
                     serialPort1.Write("CLD WDR\r\n");
                     System.Threading.Thread.Sleep(20);
-                    serialPort1.Write("VOL UL\r\n");
-                    System.Threading.Thread.Sleep(20);
                     serialPort1.Write("DIA " + textBox21.Text + "\r\n");
                     System.Threading.Thread.Sleep(20);
                 }
@@ -1016,8 +1000,8 @@ namespace TECAS_Static_Calcification
                     checkBox4.Checked = false;
                     return;
                 }
-                label44.Text = "0 ul";
-                label46.Text = "0 ul";
+                label44.Text = "0 ml";
+                label46.Text = "0 ml";
                 button16.Enabled = true;
                 button17.Enabled = true;
                 button18.Enabled = true;
@@ -1067,22 +1051,14 @@ namespace TECAS_Static_Calcification
         }
         private void button17_MouseUp(object sender, MouseEventArgs e)
         {
-            try
-            {
-                serialPort1.Write("STP\r\n");
-                System.Threading.Thread.Sleep(20);
-                _Reading = serialPort1.ReadExisting();
-                serialPort1.Write("DIS\r\n");
-                System.Threading.Thread.Sleep(50);
-                _Reading = serialPort1.ReadExisting();
-                label44.Text = String.Format("{0:0.0000}", (Convert.ToDouble(_Reading.Substring(5, 5)))) + " " + _Reading.Substring(16, 2).ToLower();
-                serialPort1.Close();
-            }
-            catch (Exception h)
-            {
-                MessageBox.Show("Error with manual override: " + h.Message, "Override", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            serialPort1.Write("STP\r\n");
+            System.Threading.Thread.Sleep(20);
+            _Reading = serialPort1.ReadExisting();
+            serialPort1.Write("DIS\r\n");
+            System.Threading.Thread.Sleep(20);
+            _Reading = serialPort1.ReadExisting();
+            label44.Text = String.Format("{0:0.0000}",(Convert.ToDouble(_Reading.Substring(5, 5))))+ " " + _Reading.Substring(16, 2).ToLower(); 
+            serialPort1.Close();
         }
         //Withdraw Manual
         private void button16_MouseDown(object sender, MouseEventArgs e)
@@ -1111,22 +1087,14 @@ namespace TECAS_Static_Calcification
         }
         private void button16_MouseUp(object sender, MouseEventArgs e)
         {
-            try
-            {
-                _Reading = serialPort1.ReadExisting();
-                serialPort1.Write("DIS\r\n");
-                System.Threading.Thread.Sleep(50);
-                _Reading = serialPort1.ReadExisting();
-                label46.Text = String.Format("{0:0.0000}", (Convert.ToDouble(_Reading.Substring(11, 5)))) + " " + _Reading.Substring(16, 2).ToLower();//_Reading.Substring(11, 5).ToLower() + " " + _Reading.Substring(16, 2).ToLower();
-                serialPort1.Write("STP\r\n");
-                System.Threading.Thread.Sleep(20);
-                serialPort1.Close();
-            }
-            catch (Exception h)
-            {
-                MessageBox.Show("Error with manual override: " + h.Message, "Override", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            _Reading = serialPort1.ReadExisting();
+            serialPort1.Write("DIS\r\n");
+            System.Threading.Thread.Sleep(20);
+            _Reading = serialPort1.ReadExisting();
+            label46.Text = String.Format("{0:0.0000}", (Convert.ToDouble(_Reading.Substring(11, 5)))) + " "+ _Reading.Substring(16, 2).ToLower();//_Reading.Substring(11, 5).ToLower() + " " + _Reading.Substring(16, 2).ToLower();
+            serialPort1.Write("STP\r\n");
+            System.Threading.Thread.Sleep(20);
+            serialPort1.Close();
         }
         //Clear Values manual infusion
         private void button18_Click(object sender, EventArgs e)
@@ -1164,7 +1132,9 @@ namespace TECAS_Static_Calcification
         {
             try
             {
-                if(Convert.ToDouble(textBox2.Text)<0)
+                if (Convert.ToDouble(textBox2.Text) < 0 || Convert.ToDouble(textBox6.Text) < 5)
+                    throw new ArgumentException();
+                if(Convert.ToDouble(textBox5.Text)<20)
                     throw new ArgumentException();
             }
             catch (Exception)
@@ -1231,6 +1201,8 @@ namespace TECAS_Static_Calcification
                     ExpAccVal = 0;
                     //Set the controls to disable and the tabs
                     textBox2.Enabled = false;
+                    textBox5.Enabled = false;
+                    textBox6.Enabled = false;
                     textBox4.Enabled = false;
                     EnableTab(tabPage1, false);
                     EnableTab(tabPage2, false);
@@ -1286,7 +1258,6 @@ namespace TECAS_Static_Calcification
             ExpAccVal = 0;
             dblValue = 0;
             dblValueAcc = 0;
-            WdrVol = ((1000 - SyrCalIntercept) / SyrCalSlope);
             //Check the subsampling rate and load the divider for the graph
             try
             {
@@ -1346,6 +1317,8 @@ namespace TECAS_Static_Calcification
             button15.Enabled = true;
             button14.Enabled = false;
             textBox2.Enabled = false;
+            textBox5.Enabled = false;
+            textBox6.Enabled = false;
             textBox4.Enabled = false;
             comboBox1.Enabled = false;
             checkBox5.Enabled = false;
@@ -1360,7 +1333,7 @@ namespace TECAS_Static_Calcification
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             //Start Export Data
-            string _FirstLine = "PH Setp.:"+ textBox2.Text +",Time[s],Value,,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value,\n";
+            string _FirstLine = "PH Setp.:"+ textBox2.Text + "Max. Vol [ul]:" + textBox5.Text + "Mix Time [s]:" + textBox6.Text +",Time[s],Value,,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value,\n";
             string[] Content = new string[chart4.Series["Series1"].Points.Count];
             string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ @"\Calcification Experiments";
             try
@@ -1470,7 +1443,7 @@ namespace TECAS_Static_Calcification
                             //Timemix
                             if (TimeMix)
                             {
-                                if (DateTime.Now.AddSeconds(-10) > ExpWaitTime)
+                                if (DateTime.Now.AddSeconds(-Convert.ToDouble(textBox6.Text)) > ExpWaitTime)//-10) > ExpWaitTime)//-Convert.ToDouble(textBox6.Text)) > ExpWaitTime)
                                     TimeMix = false;
                                 ExpState = 0;
                                 break;
@@ -1484,7 +1457,7 @@ namespace TECAS_Static_Calcification
                             //Set the timer to now to check if some secs passed
                             ExpWaitTime=DateTime.Now;
                             //Calculate the volume to infuse
-                            CalcVol = Math.Abs(Deviation) * (50 / 0.03);
+                            CalcVol = Math.Abs(Deviation) * (Convert.ToDouble(textBox5.Text) - 20) + 20;
                             VoltoInf = (CalcVol - SyrCalIntercept) / SyrCalSlope;
                             //Minimum: 20ul
                             if (VoltoInf < 20)
@@ -1492,11 +1465,11 @@ namespace TECAS_Static_Calcification
                                 VoltoInf = (20 - SyrCalIntercept) / SyrCalSlope;
                                 CalcVol = 20;
                             }
-                            //Max: 50ul
-                            if (VoltoInf > 50)
+                            //Max: Set
+                            if (VoltoInf > Convert.ToDouble(textBox5.Text))
                             {
-                                VoltoInf = (50 - SyrCalIntercept) / SyrCalSlope;
-                                CalcVol = 50;
+                                VoltoInf = (Convert.ToDouble(textBox5.Text) - SyrCalIntercept) / SyrCalSlope;
+                                CalcVol = Convert.ToDouble(textBox5.Text);
                             }
                             //Set the pump
                             serialPort1.Write("DIR INF\r\n");
@@ -1512,35 +1485,26 @@ namespace TECAS_Static_Calcification
                             break;
                         case 3:
                             //Read the value infused
-                            try
-                            {
-                                _Reading = serialPort1.ReadExisting();
-                                serialPort1.Write("DIS\r\n");
-                                System.Threading.Thread.Sleep(20);
-                                _Reading = serialPort1.ReadExisting();
-                                //Check if the read volume but corrected is bigger than the volume to infuse or 3 secs passed
-                                ReadVol = Convert.ToDouble(_Reading.Substring(5, 5));
-                            }
-                            catch (Exception h)
-                            {
-                                MessageBox.Show("Error reading syringe pump volume: " + h.Message + "\n Check the connections!!!", "Syringe Pump", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                ExpState = 0;
-                            }
-                            
+                            _Reading = serialPort1.ReadExisting();
+                            serialPort1.Write("DIS\r\n");
+                            System.Threading.Thread.Sleep(20);
+                            _Reading = serialPort1.ReadExisting();
+                            //Check if the read volume but corrected is bigger than the volume to infuse or 3 secs passed
+                            ReadVol = Convert.ToDouble(_Reading.Substring(5, 5));
                             if (ReadVol*SyrCalSlope+SyrCalIntercept >= VoltoInf || DateTime.Now.AddSeconds(-3) > ExpWaitTime) //up to 3 senconds to reach
                             {
                                 InfStarted = false; //Infusion finished, check if 1ml was infused and recharge
-                                if (AccumVolInf > WdrVol && checkBox5.Checked == true)
+                                if (AccumVolInf > WdrVol && checkBox5.Checked==true)
                                 {
                                     //Increment the Wdr
-                                    WdrVol = WdrVol + 1000 - SyrCalIntercept;
+                                    WdrVol = WdrVol + 1000;
                                     serialPort1.Write("DIR WDR\r\n");
-                                    System.Threading.Thread.Sleep(20);
+                                    System.Threading.Thread.Sleep(30);
                                     //Write to the syringe
                                     serialPort1.Write("VOL " + String.Format("{0:0000}", (1000 - SyrCalIntercept) / SyrCalSlope) + "\r\n");
-                                    System.Threading.Thread.Sleep(20);
+                                    System.Threading.Thread.Sleep(30);
                                     serialPort1.Write("RUN\r\n");
-                                    System.Threading.Thread.Sleep(20);
+                                    System.Threading.Thread.Sleep(30);
                                 }
                                 //Mixing time
                                 TimeMix = true;
@@ -1768,7 +1732,7 @@ namespace TECAS_Static_Calcification
 
         private void tabControl1_Selecting(object sender, TabControlCancelEventArgs e)
         {
-            if(timer4.Enabled)
+            if (timer4.Enabled)
             {
                 tabControl1.SelectTab(tabPage4);
             }
