@@ -1093,7 +1093,6 @@ namespace TECAS_Static_Calcification
 
         private bool CheckExpErr()
         {
-            serialPort1.Close();
             try
             {
                 if(Convert.ToDouble(textBox2.Text)<0)
@@ -1141,6 +1140,12 @@ namespace TECAS_Static_Calcification
                     button14.Text = "Start";
                     timer4.Enabled = true;
                     timer2.Enabled = false;
+
+                    if (!serialPort1.IsOpen)
+                    {
+                        serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
+                        serialPort1.Open();
+                    }
                     //
 
                     ExpState = 0;
@@ -1159,12 +1164,19 @@ namespace TECAS_Static_Calcification
                 return;
             }
             if (!CheckExpErr())
+            {
+                if (serialPort1.IsOpen)
+                    serialPort1.Close();
                 return;
+            }
 
             try
             {
-                serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
-                serialPort1.Open();
+                if (!serialPort1.IsOpen)
+                {
+                    serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
+                    serialPort1.Open();
+                }
             }
             catch (Exception ex)
             {
