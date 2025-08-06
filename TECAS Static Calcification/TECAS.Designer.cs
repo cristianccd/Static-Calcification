@@ -217,7 +217,6 @@
             // 
             this.openFileDialog1.DefaultExt = "tcal";
             this.openFileDialog1.Filter = "Calibration Files (*.tcal)|*.tcal";
-            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
             // serialPort1
             // 

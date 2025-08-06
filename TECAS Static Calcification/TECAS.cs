@@ -154,9 +154,9 @@ namespace TECAS_Static_Calcification
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
                     LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4 it can also be 0, 0, 32, 0 for better resolution in other port
                 }
-                catch (LabJackUDException)
+                catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error opening DAQ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 foreach (var series in chart3.Series)
@@ -314,9 +314,9 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException)
+                catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                     label10.Text = String.Format("{0:0.0000}", dblValue);
@@ -329,7 +329,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -457,9 +457,9 @@ namespace TECAS_Static_Calcification
                 LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
                 LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
             }
-            catch (LabJackUDException)
+            catch (LabJackUDException h)
             {
-                MessageBox.Show("Error opening DAQ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             if (!checkBox2.Checked)
@@ -489,9 +489,9 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException)
+                catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
@@ -528,7 +528,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             timer2.Enabled = true;
@@ -1255,9 +1255,9 @@ namespace TECAS_Static_Calcification
                 LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
                 LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
             }
-            catch (LabJackUDException)
+            catch (LabJackUDException h)
             {
-                MessageBox.Show("Error opening DAQ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 serialPort1.Close();
                 return;
             }
@@ -1326,9 +1326,9 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue1, ref dummyInt, ref dummyDouble1);
                 }
-                catch (LabJackUDException)
+                catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
@@ -1426,7 +1426,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             timer4.Enabled = true;
@@ -1635,11 +1635,6 @@ namespace TECAS_Static_Calcification
                 tabControl1.SelectTab(tabPage4);
             }
             return;
-        }
-
-        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
-        {
-
         }
 
         //*********************************************************************************
