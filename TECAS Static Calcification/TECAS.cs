@@ -45,9 +45,11 @@ namespace TECAS_Static_Calcification
 
         //Experiment
         double ExpTicks = 0, ExpAvgVal = 0, ExpAccVal = 0, ExpAvgSyr = 0, ExpCurrVol=0, Deviation=0, VoltoInf=0, AccVol=0;
-        DateTime ExpStart;
+        DateTime ExpStart, ExpWaitTime;
+        bool InfStarted = false, InfFinished = false, ExpWait=false;
         bool Paused = false;
-
+        int ExpState = 0;
+        string pepito;
 
         //***************************
 
@@ -149,13 +151,20 @@ namespace TECAS_Static_Calcification
                 }
                 foreach (var series in chart3.Series)
                     series.Points.Clear();
+                //Block pH controls
+                textBox1.Enabled = false;
+                button8.Enabled = false;
+                button9.Enabled = false;
+                button10.Enabled = false;
+                button11.Enabled = false;
+                button12.Enabled = false;
                 timer3.Enabled = true;
             }
             else
                 return;
         }
 
-        private void timer3_Tick(object sender, EventArgs e)
+    private void timer3_Tick(object sender, EventArgs e)
         {
             timer3.Enabled = false; //first disable the timer to perform actions
             bool requestedExit = false;
@@ -193,17 +202,19 @@ namespace TECAS_Static_Calcification
                     if (pHQuestSample == DialogResult.OK)
                     {
                         pHCalState = 1;
-                        pHAccumTime = 0;
+                        //pHAccumTime = 0;
                         pHstartTime = DateTime.Now;
                     }
                     //otherwise just wait until is OK
                     else
                         return;
+
                     timer3.Enabled = true;
                     break;
                 case 1://Start accumulating time and check if the target is reached
-                    pHAccumTime = pHAccumTime + Convert.ToDouble(timer3.Interval) / 1000 / 60;
-                    label12.Text = (DateTime.Now - pHstartTime).Minutes + ":" + (DateTime.Now - pHstartTime).Seconds + " mins";
+                    //pHAccumTime = pHAccumTime + Convert.ToDouble(timer3.Interval) / 1000 / 60;
+                    //label12.Text = (DateTime.Now - pHstartTime).Minutes + ":" + (DateTime.Now - pHstartTime).Seconds + " mins";
+                    label12.Text = String.Format("{0:00}", (DateTime.Now - pHstartTime).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - pHstartTime).Seconds);
                     if (Convert.ToDouble((DateTime.Now - pHstartTime).TotalMinutes) >= Convert.ToDouble(textBox1.Text))//pHAccumTime >= Convert.ToDouble(textBox1.Text))
                     {
                         pHCalState = 2; //Time reached
@@ -236,16 +247,16 @@ namespace TECAS_Static_Calcification
                         //sumxy
                         a= a + Convert.ToDouble(dataGridView2[0, i].Value) * Convert.ToDouble(dataGridView2[1, i].Value);
                         //sumx
-                        b= b + Convert.ToDouble(dataGridView2[0, i].Value);
+                        b= b + Convert.ToDouble(dataGridView2[1, i].Value);
                         //sumy
-                        c= c +Convert.ToDouble(dataGridView2[1, i].Value);
+                        c= c +Convert.ToDouble(dataGridView2[0, i].Value);
                         //sumx2
-                        d= d + Math.Pow(Convert.ToDouble(dataGridView2[0, i].Value), 2);
+                        d= d + Math.Pow(Convert.ToDouble(dataGridView2[1, i].Value), 2);
                         //sumy2
-                        f= f + Math.Pow(Convert.ToDouble(dataGridView2[1, i].Value),2);
-                        chart3.Series["Series2"].Points.AddXY(Convert.ToDouble(dataGridView2[0,i].Value),dataGridView2[1, i].Value);
+                        f= f + Math.Pow(Convert.ToDouble(dataGridView2[0, i].Value),2);
+                        chart3.Series["Series2"].Points.AddXY(Convert.ToDouble(dataGridView2[1,i].Value),dataGridView2[0, i].Value);
                     }
-                    /*R2 = ((Nxysum - xsumysum)^2)/(Nx^2sum - xsum*xsum)*(Ny^2sum - ysum*ysum)*/
+                    /*R2 = ((Nxysum - xsumysum)^2)/((Nx^2sum - xsum*xsum)*(Ny^2sum - ysum*ysum))*/
                     pHR2=(Math.Pow((dataGridView2.RowCount*a-b*c),2))/((dataGridView2.RowCount*d-Math.Pow(b,2))*(dataGridView2.RowCount*f-Math.Pow(c,2)));
                     /*Slope(b) = (NΣXY - (ΣX)(ΣY)) / (NΣX2 - (ΣX)2) Intercept(a) = (ΣY - b(ΣX)) / N */
                     pHCalSlope = (dataGridView2.RowCount * a - b * c) / (dataGridView2.RowCount*d - Math.Pow(b, 2));
@@ -255,8 +266,8 @@ namespace TECAS_Static_Calcification
                     else
                         label6.Text = "y=" + String.Format("{0:0.0000}", pHCalSlope) + " x" + String.Format("{0:0.0000}", pHCalIntercept);
                     label5.Text = "R =  " + String.Format("{0:0.0000}", pHR2);
-                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[0,0].Value),pHCalSlope*Convert.ToDouble(dataGridView2[0,0].Value)+pHCalIntercept);
-                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[0, dataGridView2.RowCount-1].Value), pHCalSlope * Convert.ToDouble(dataGridView2[0, dataGridView2.RowCount - 1].Value) + pHCalIntercept);
+                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[1,0].Value),pHCalSlope*Convert.ToDouble(dataGridView2[1,0].Value)+pHCalIntercept);
+                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[1, dataGridView2.RowCount-1].Value), pHCalSlope * Convert.ToDouble(dataGridView2[1, dataGridView2.RowCount - 1].Value) + pHCalIntercept);
                     panel1.Visible = true;
                     button12.Enabled = true;
                     pHTicks = 0;
@@ -529,6 +540,19 @@ namespace TECAS_Static_Calcification
                 System.Threading.Thread.Sleep(20);
                 foreach (var series in chart1.Series)
                     series.Points.Clear();
+                //Block controls
+                dataGridView1.Enabled = false;
+                comboBox22.Enabled = false;
+                textBox21.Enabled = false;
+                textBox22.Enabled = false;
+                checkBox4.Enabled = false;
+                button16.Enabled = false;
+                button17.Enabled = false;
+                button4.Enabled = false;
+                button5.Enabled = false;
+                button1.Enabled = false;
+                button2.Enabled = false;
+                button3.Enabled = false;
                 timer1.Enabled = true;
             }  
         }
@@ -635,7 +659,18 @@ namespace TECAS_Static_Calcification
                     SyrCal = true;
                     checkBox1.Checked = true;
                     panel5.Visible = true;
+                                    dataGridView1.Enabled = false;
+                    comboBox22.Enabled = true;
+                    textBox21.Enabled = true;
+                    textBox22.Enabled = true;
+                    checkBox4.Enabled = true;
+                    button16.Enabled = true;
+                    button17.Enabled = true;
+                    button4.Enabled = true;
                     button5.Enabled = true;
+                    button1.Enabled = true;
+                    button2.Enabled = true;
+                    button3.Enabled = true;
                     return;
             }
         }
@@ -719,12 +754,23 @@ namespace TECAS_Static_Calcification
         {
             if (checkBox4.Checked == true)
             {
+                try
+                {
+                    if (!serialPort1.IsOpen)
+                    {
+                        serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
+                        serialPort1.Open();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 button16.Enabled = true;
                 button17.Enabled = true;
                 try
                 {
-                    serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
-                    serialPort1.Open();
                     serialPort1.Write("VOL 0\r\n");
                     System.Threading.Thread.Sleep(20);
                     serialPort1.Write("CLD INF\r\n");
@@ -777,13 +823,13 @@ namespace TECAS_Static_Calcification
 
         private void button17_MouseUp(object sender, MouseEventArgs e)
         {
+            serialPort1.Write("STP\r\n");
+            System.Threading.Thread.Sleep(20);
             _Reading = serialPort1.ReadExisting();
             serialPort1.Write("DIS\r\n");
             System.Threading.Thread.Sleep(20);
             _Reading = serialPort1.ReadExisting();
-            label44.Text = _Reading.Substring(5, 5).ToLower() +" "+_Reading.Substring(16, 2).ToLower();
-            serialPort1.Write("STP\r\n");
-            System.Threading.Thread.Sleep(20);
+            label44.Text = String.Format("{0:0.0000}",(Convert.ToDouble(_Reading.Substring(5, 5))))+ " " + _Reading.Substring(16, 2).ToLower(); 
             serialPort1.Close();
         }
 
@@ -820,10 +866,16 @@ namespace TECAS_Static_Calcification
             serialPort1.Write("DIS\r\n");
             System.Threading.Thread.Sleep(20);
             _Reading = serialPort1.ReadExisting();
-            label46.Text = _Reading.Substring(11, 5).ToLower() + " " + _Reading.Substring(16, 2).ToLower();
+            label46.Text = String.Format("{0:0.0000}",(Convert.ToDouble(_Reading.Substring(11, 5)))) + " " + _Reading.Substring(16, 2).ToLower();//_Reading.Substring(11, 5).ToLower() + " " + _Reading.Substring(16, 2).ToLower();
             serialPort1.Write("STP\r\n");
             System.Threading.Thread.Sleep(20);
             serialPort1.Close();
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            label44.Text="0 ml";
+            label46.Text = "0 ml";
         }
 
         //*********************************************************************************
@@ -885,7 +937,7 @@ namespace TECAS_Static_Calcification
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("DIA " + textBox21.Text + "\r\n");
             System.Threading.Thread.Sleep(20);
-            serialPort1.Write("RAT 800 MH\r\n"); //Rate fixed
+            serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("VOL UL\r\n"); //Rate fixed
             System.Threading.Thread.Sleep(20);
@@ -905,8 +957,8 @@ namespace TECAS_Static_Calcification
                 serialPort1.Close();
                 return;
             }
-            label23.Text = String.Format("{0:0.000000}", pHCalSlope);
-            label35.Text = String.Format("{0:0.000000}", SyrCalSlope);
+            label23.Text = String.Format("{0:0.0000}", pHCalSlope);
+            label35.Text = String.Format("{0:0.0000}", SyrCalSlope);
             chart4.ChartAreas[0].AxisY.LabelStyle.Format = "#.###";
             chart4.ChartAreas[0].AxisX.LabelStyle.Format = "#.###";
             ExpStart = DateTime.Now;
@@ -929,6 +981,7 @@ namespace TECAS_Static_Calcification
             }
 
             bool requestedExit = false;
+            ExpState = 0;
             while (!requestedExit)
             {
                 try
@@ -944,10 +997,10 @@ namespace TECAS_Static_Calcification
                 {
                     ExpTicks++;
                     ExpAccVal = ExpAccVal + (dblValue * pHCalSlope + pHCalIntercept);
-                    label13.Text = String.Format("{0:0.000000000 V}", dblValue);
-                    if (ExpTicks >= 10)//average between N samples
+                    if (ExpTicks >= 30)
                     {
-                        ExpAvgVal = ExpAccVal / 10;
+                        label13.Text = String.Format("{0:0.000000000 V}", dblValue);    
+                        ExpAvgVal = ExpAccVal / 30;
                         label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);
                         chart4.Series["Series1"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, ExpAvgVal);
                         serialPort1.ReadExisting();
@@ -955,28 +1008,33 @@ namespace TECAS_Static_Calcification
                         System.Threading.Thread.Sleep(20);
                         _Reading = serialPort1.ReadExisting();
                         ExpCurrVol = Convert.ToDouble(_Reading.Substring(5, 5));
-                        ExpCurrVol = ExpCurrVol*SyrCalSlope+SyrCalIntercept;
+                        ExpCurrVol = ExpCurrVol * SyrCalSlope + SyrCalIntercept;
                         Deviation = Convert.ToDouble(textBox2.Text) - ExpAvgVal;
                         chart4.Series["Series2"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, ExpCurrVol);
                         label17.Text = String.Format("{0:0.0000000}", Deviation);
                         label21.Text = String.Format("{0:0}", (DateTime.Now - ExpStart).TotalDays) + " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
-                        //Start Control Loop
-                        if (Deviation > 0.0005)
+                        if (Deviation > 0.0005 && InfStarted == false)
                         {
+                            InfStarted = true;
+                            ExpWaitTime=DateTime.Now;
                             //proportional control VoltoInf=Kp*e(t)+p0 -- p0: set point; Kp: Gain; e(t)=error
-                            VoltoInf = Deviation/0.005; //1ul per 0.005
-                            serialPort1.Write("VOL " + Convert.ToString(VoltoInf*SyrCalSlope+SyrCalIntercept) + "\r\n");
+                            VoltoInf = ((Deviation / 0.001) - SyrCalIntercept) / SyrCalSlope; //1ul per 0.005
+                            if (VoltoInf < 10)
+                                VoltoInf = 10;
                             System.Threading.Thread.Sleep(20);
-                            //serialPort1.Write("VOL UL\r\n");
+                            serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");//Convert.ToString((VoltoInf - SyrCalIntercept) / SyrCalSlope) + "\r\n");
                             System.Threading.Thread.Sleep(20);
                             serialPort1.Write("RUN\r\n");
-                            AccVol = AccVol + ExpCurrVol;
+                            System.Threading.Thread.Sleep(20);
                         }
-                        else
+                        if (InfStarted && DateTime.Now.AddSeconds(-5)>ExpWaitTime)
+                        { 
+                            //wait
+                            InfStarted = false;
                             serialPort1.Write("STP\r\n");
-                        System.Threading.Thread.Sleep(20);
-                        //End Control Loop
-                        label19.Text = String.Format("{0:0.000}", AccVol)+_Reading.Substring(16, 2).ToLower();
+                        }
+
+                        label19.Text = String.Format("{0:000.000}", ExpCurrVol) + _Reading.Substring(16, 2).ToLower();//String.Format("{0:0.000}", AccVol)+_Reading.Substring(16, 2).ToLower();
                         chart4.Series["Series3"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, Deviation);
                         ExpTicks = 0;
                         ExpAccVal = 0;
@@ -1070,7 +1128,6 @@ namespace TECAS_Static_Calcification
             } 
             //End Export Data
         }
-
         //*********************************************************************************
         //***********************************END*******************************************
     }
