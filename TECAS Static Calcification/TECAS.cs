@@ -154,12 +154,27 @@ namespace TECAS_Static_Calcification
                 //Block pH controls
                 textBox1.Enabled = false;
                 button8.Enabled = false;
-                button9.Enabled = false;
+                if (dataGridView2.RowCount <= 2)
+                    button9.Enabled = false;
                 button10.Enabled = false;
                 button11.Enabled = false;
                 button12.Enabled = false;
                 label48.Visible = true;
                 button19.Enabled = true;
+                pHCalState = 0;
+                pHCalSlope = 0;
+                pHCalIntercept = 0;
+                pHR2 = 0;
+                SumpHCal = 0;
+                pHTicks = 0;
+                pHAvgVal = 0;
+                pHSampleNo = 0;
+                label10.Text = "0.00";
+                label12.Text = "00:00";
+                pHCal = false;
+                panel1.Visible = false;
+                for (int i = 0; i < dataGridView2.RowCount; i++)
+                    dataGridView2[1, i].Value = "";
                 timer3.Enabled = true;
             }
             else
@@ -249,9 +264,15 @@ namespace TECAS_Static_Calcification
                     else
                         label6.Text = "y=" + String.Format("{0:0.0000}", pHCalSlope) + " x" + String.Format("{0:0.0000}", pHCalIntercept);
                     label5.Text = "R =  " + String.Format("{0:0.0000}", pHR2);
+                    //Graph
                     chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[1,0].Value),pHCalSlope*Convert.ToDouble(dataGridView2[1,0].Value)+pHCalIntercept);
                     chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[1, dataGridView2.RowCount-1].Value), pHCalSlope * Convert.ToDouble(dataGridView2[1, dataGridView2.RowCount - 1].Value) + pHCalIntercept);
                     panel1.Visible = true;
+                    button8.Enabled = true;
+                    if (dataGridView2.RowCount <= 2)
+                        button9.Enabled = false;
+                    button10.Enabled = true;
+                    button11.Enabled = true;
                     button12.Enabled = true;
                     pHTicks = 0;
                     SumpHCal = 0;
@@ -277,7 +298,7 @@ namespace TECAS_Static_Calcification
                     MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN)
-                    label10.Text = String.Format("{0:00.00000}", dblValue);
+                    label10.Text = String.Format("{0:0.00000}", dblValue);
                 try
                 {
                     LJUD.GetNextResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
@@ -562,6 +583,8 @@ namespace TECAS_Static_Calcification
                 //open port if not open
                 if (comboBox22.SelectedIndex != -1)
                 {
+                    if (serialPort1.IsOpen)
+                        serialPort1.Close();
                     try
                     {
                         serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
@@ -677,7 +700,8 @@ namespace TECAS_Static_Calcification
                     _SampleUnits = dataGridView1[1, SampleNo-1].Value.ToString();
                     SyrVolForm = new SyrSamInp(_SampleUnits);
                     SyrVolForm.Show();
-                    this.Hide();
+                    //this.Hide();
+                    this.Enabled = false;
                     State = 3;
                     timer1.Enabled = true;
                     break;
@@ -685,7 +709,7 @@ namespace TECAS_Static_Calcification
                     timer1.Enabled = true;
                     break;
                 case 4:
-                    this.Show();
+                    this.Enabled = true;
                     dataGridView1[2, SampleNo - 1].Value = SampleVolume;
                     _SampleUnits = Convert.ToString(dataGridView1[1, SampleNo - 1].Value);
                     dataGridView1[3, SampleNo - 1].Value = _SampleUnits;
@@ -752,8 +776,9 @@ namespace TECAS_Static_Calcification
                     textBox21.Enabled = true;
                     textBox22.Enabled = true;
                     checkBox4.Enabled = true;
-                    button16.Enabled = true;
-                    button17.Enabled = true;
+                    checkBox4.Checked = false;
+                    button16.Enabled = false;
+                    button17.Enabled = false;
                     button4.Enabled = true;
                     button5.Enabled = true;
                     button1.Enabled = true;
@@ -774,8 +799,9 @@ namespace TECAS_Static_Calcification
             textBox21.Enabled = true;
             textBox22.Enabled = true;
             checkBox4.Enabled = true;
-            button16.Enabled = true;
-            button17.Enabled = true;
+            checkBox4.Checked = false;
+            button16.Enabled = false;
+            button17.Enabled = false;
             button4.Enabled = true;
             button5.Enabled = false;
             button1.Enabled = true;
@@ -856,8 +882,15 @@ namespace TECAS_Static_Calcification
 
         private void checkBox4_CheckedChanged(object sender, EventArgs e)
         {
+            
             if (checkBox4.Checked == true)
             {
+                if (string.IsNullOrWhiteSpace(textBox21.Text) || string.IsNullOrWhiteSpace(textBox22.Text))
+                {
+                    MessageBox.Show("Please input the syringe specifications", "Diameter and capacity not set", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    checkBox4.Checked = false;
+                    return;
+                }
                 try
                 {
                     if (!serialPort1.IsOpen)
@@ -882,6 +915,8 @@ namespace TECAS_Static_Calcification
                     System.Threading.Thread.Sleep(20);
                     serialPort1.Write("DIA " + textBox21.Text + "\r\n");
                     System.Threading.Thread.Sleep(20);
+                    serialPort1.Write("RAT 500 MH\r\n");
+                    System.Threading.Thread.Sleep(20);
                 }
                 catch (Exception ex)
                 {
@@ -889,6 +924,8 @@ namespace TECAS_Static_Calcification
                     checkBox4.Checked = false;
                     return;
                 }
+                label44.Text = "0 ml";
+                label46.Text = "0 ml";
                 button16.Enabled = true;
                 button17.Enabled = true;
                 button18.Enabled = true;
@@ -899,8 +936,17 @@ namespace TECAS_Static_Calcification
                 button16.Enabled = false;
                 button17.Enabled = false;
                 button18.Enabled = false;
+                try
+                {
+                    if (serialPort1.IsOpen)
+                        serialPort1.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
-
         }
 
         private void button17_MouseDown(object sender, MouseEventArgs e)
@@ -923,7 +969,6 @@ namespace TECAS_Static_Calcification
             serialPort1.Write("DIR INF\r\n");
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
-            System.Threading.Thread.Sleep(20);
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("RUN\r\n");
             System.Threading.Thread.Sleep(20);
@@ -980,6 +1025,19 @@ namespace TECAS_Static_Calcification
 
         private void button18_Click(object sender, EventArgs e)
         {
+            try
+            {
+                if (!serialPort1.IsOpen)
+                {
+                    serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
+                    serialPort1.Open();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             label44.Text="0 ml";
             label46.Text = "0 ml";
             serialPort1.Write("STP\r\n");
@@ -987,6 +1045,7 @@ namespace TECAS_Static_Calcification
             serialPort1.Write("CLD INF\r\n");
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("CLD WDR\r\n");
+            serialPort1.Close();
         }
 
         //*********************************************************************************
@@ -1217,9 +1276,6 @@ namespace TECAS_Static_Calcification
                             InfStarted = false;
                             serialPort1.Write("STP\r\n");
                             System.Threading.Thread.Sleep(20);
-                            chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
-                            chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
-                            chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
                             ExpState=0;
                             break;
                     }
@@ -1242,6 +1298,9 @@ namespace TECAS_Static_Calcification
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             TimeDif = (DateTime.Now - ExpStart).TotalSeconds;
+            chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
+            chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
+            chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)

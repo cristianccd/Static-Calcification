@@ -869,7 +869,6 @@
             this.textBox22.Name = "textBox22";
             this.textBox22.Size = new System.Drawing.Size(36, 20);
             this.textBox22.TabIndex = 75;
-            this.textBox22.Text = " ";
             // 
             // label25
             // 
@@ -896,7 +895,6 @@
             this.textBox21.Name = "textBox21";
             this.textBox21.Size = new System.Drawing.Size(36, 20);
             this.textBox21.TabIndex = 72;
-            this.textBox21.Text = " ";
             // 
             // panel3
             // 
@@ -1267,6 +1265,7 @@
             // 
             chartArea3.AxisX.Minimum = 0D;
             chartArea3.AxisX.ScaleView.Size = 30D;
+            chartArea3.AxisY.Minimum = 0D;
             chartArea3.AxisY2.Maximum = 14D;
             chartArea3.AxisY2.Minimum = 0D;
             chartArea3.Name = "ChartArea1";
