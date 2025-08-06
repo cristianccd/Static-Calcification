@@ -49,6 +49,8 @@ namespace TECAS_Static_Calcification
         bool InfStarted = false, InfFinished = false, ExpWait=false;
         bool Paused = false;
         int ExpState = 0;
+        double ulml = 0;
+        double AccumVolInf = 0;
         string pepito;
 
         //***************************
@@ -404,9 +406,9 @@ namespace TECAS_Static_Calcification
                     pHMeasureAvg = pHMeasureAvg + pHMeasureVal;
                     label42.Text = String.Format("{0:0.000000000 V}", dblValue);
                     pHMeasureTicks++;
-                    if (pHMeasureTicks >= 50)//average between N samples
+                    if (pHMeasureTicks >= 30)//average between N samples
                     {
-                        label3.Text = String.Format("{0:0.000000}", pHMeasureVal);
+                        label3.Text = String.Format("{0:0.000000}", pHMeasureAvg/30);
                         if (Convert.ToDouble(textBox3.Text) == 0)
                             label37.Text = "0.000000";
                         else
@@ -414,6 +416,8 @@ namespace TECAS_Static_Calcification
                         chart2.Series["Series1"].Points.AddXY((DateTime.Now-pHMeasureStart).TotalSeconds,pHMeasureVal);
                         if ((DateTime.Now - pHMeasureStart).TotalSeconds>30)
                             chart2.ChartAreas[0].AxisX.ScaleView.Position = (DateTime.Now-pHMeasureStart).TotalSeconds - 30;
+                        pHMeasureAvg = 0;
+                        pHMeasureTicks = 0;
                     }
                 }
                 try
@@ -939,7 +943,8 @@ namespace TECAS_Static_Calcification
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
             System.Threading.Thread.Sleep(20);
-            serialPort1.Write("VOL UL\r\n"); //Rate fixed
+            //serialPort1.Write("VOL UL\r\n"); //Rate fixed
+            serialPort1.Write("VOL UL\r\n");
             System.Threading.Thread.Sleep(20);
 
             //Configure DAQ
@@ -967,8 +972,9 @@ namespace TECAS_Static_Calcification
             button14.Enabled = false;
             foreach (var series in chart4.Series)
                 series.Points.Clear();
-            timer4.Enabled = true;
+            ExpState = 0;
             textBox2.Enabled = false;
+            timer4.Enabled = true;
         }
 
         private void timer4_Tick(object sender, EventArgs e)
@@ -981,7 +987,6 @@ namespace TECAS_Static_Calcification
             }
 
             bool requestedExit = false;
-            ExpState = 0;
             while (!requestedExit)
             {
                 try
@@ -995,7 +1000,73 @@ namespace TECAS_Static_Calcification
                 }
                 if (ioType == LJUD.IO.GET_AIN)
                 {
-                    ExpTicks++;
+                    switch (ExpState)
+                    { 
+                        case 0:
+                            ExpTicks++;
+                            ExpAccVal = ExpAccVal + (dblValue * pHCalSlope + pHCalIntercept);
+                            if (ExpTicks >= 30)
+                                ExpState = 1;
+                            break;
+                        case 1:
+                            ExpAvgVal = ExpAccVal / 30;
+                            label13.Text = String.Format("{0:0.000000000 V}", dblValue);
+                            label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);
+                            chart4.Series["Series1"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, ExpAvgVal);
+                            Deviation = Convert.ToDouble(textBox2.Text) - ExpAvgVal;
+                            chart4.Series["Series2"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, AccumVolInf);
+                            label17.Text = String.Format("{0:0.0000000}", Deviation);
+                            label21.Text = String.Format("{0:00}", (DateTime.Now - ExpStart).TotalHours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
+                            chart4.Series["Series3"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, Deviation);
+                            
+                            /*serialPort1.ReadExisting();
+                            serialPort1.Write("DIS\r\n");
+                            System.Threading.Thread.Sleep(20);
+                            _Reading = serialPort1.ReadExisting();
+                            ExpCurrVol = Convert.ToDouble(_Reading.Substring(5, 5)) * SyrCalSlope + SyrCalIntercept;
+                            AccumVolInf = AccumVolInf+ExpCurrVol;*/
+                            label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
+                                                    
+                            
+                            ExpTicks = 0;
+                            ExpAccVal = 0;
+                            if (Deviation > 0.001 && InfStarted == false)
+                            {
+                                ExpState = 2;
+                                serialPort1.Write("CLD INF\r\n");
+                                System.Threading.Thread.Sleep(20);
+                                break;
+                            }
+                            if (InfStarted && DateTime.Now.AddSeconds(-10) > ExpWaitTime)
+                            {
+                                ExpState = 3;
+                                break;
+                            }
+                            ExpState = 0;
+                            break;
+                        case 2:
+                            InfStarted = true;
+                            ExpWaitTime=DateTime.Now;
+                            VoltoInf = ((Deviation * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
+                            if (VoltoInf < 10)
+                                VoltoInf = 10;
+                            if (VoltoInf > 50)
+                                VoltoInf = 50;
+                            serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");
+                            AccumVolInf = AccumVolInf + VoltoInf;
+                            System.Threading.Thread.Sleep(20);
+                            serialPort1.Write("RUN\r\n");
+                            System.Threading.Thread.Sleep(20);
+                            ExpState=0;
+                            break;
+                        case 3:
+                            InfStarted = false;
+                            serialPort1.Write("STP\r\n");
+                            System.Threading.Thread.Sleep(20);
+                            ExpState=0;
+                            break;
+                    }
+                    /*ExpTicks++;
                     ExpAccVal = ExpAccVal + (dblValue * pHCalSlope + pHCalIntercept);
                     if (ExpTicks >= 30)
                     {
@@ -1038,7 +1109,7 @@ namespace TECAS_Static_Calcification
                         chart4.Series["Series3"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, Deviation);
                         ExpTicks = 0;
                         ExpAccVal = 0;
-                    }
+                    }*/
                 }
                 try
                 {

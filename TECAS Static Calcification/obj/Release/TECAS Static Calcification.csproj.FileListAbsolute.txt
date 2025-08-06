@@ -12,3 +12,6 @@ C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\
 C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\Release\TECAS Static Calcification.application
 C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe
 C:\Users\User\Dropbox\TECAS Static Calcification\TECAS Static Calcification\obj\Release\TECAS Static Calcification.pdb
+C:\Users\User\Desktop\Back Ups SW Calcification\TECAS Static Calcification - Copy (6)\TECAS Static Calcification\bin\Release\TECAS Static Calcification.exe.config
+C:\Users\User\Desktop\Back Ups SW Calcification\TECAS Static Calcification - Copy (6)\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe
+C:\Users\User\Desktop\Back Ups SW Calcification\TECAS Static Calcification - Copy (6)\TECAS Static Calcification\obj\Release\TECAS Static Calcification.pdb
