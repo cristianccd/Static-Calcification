@@ -56,9 +56,12 @@
             this.saveFileDialog2 = new System.Windows.Forms.SaveFileDialog();
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.label52 = new System.Windows.Forms.Label();
             this.label51 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label50 = new System.Windows.Forms.Label();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.label49 = new System.Windows.Forms.Label();
             this.panel13 = new System.Windows.Forms.Panel();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
@@ -238,9 +241,12 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.label52);
             this.tabPage4.Controls.Add(this.label51);
             this.tabPage4.Controls.Add(this.comboBox1);
             this.tabPage4.Controls.Add(this.label50);
+            this.tabPage4.Controls.Add(this.textBox4);
+            this.tabPage4.Controls.Add(this.label49);
             this.tabPage4.Controls.Add(this.panel13);
             this.tabPage4.Controls.Add(this.panel11);
             this.tabPage4.Controls.Add(this.panel10);
@@ -256,6 +262,15 @@
             this.tabPage4.Text = "Static pH Experiment";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
+            // label52
+            // 
+            this.label52.AutoSize = true;
+            this.label52.Location = new System.Drawing.Point(12, 86);
+            this.label52.Name = "label52";
+            this.label52.Size = new System.Drawing.Size(48, 13);
+            this.label52.TabIndex = 30;
+            this.label52.Text = "label52";
+            // 
             // label51
             // 
             this.label51.AutoSize = true;
@@ -263,7 +278,7 @@
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(67, 13);
             this.label51.TabIndex = 29;
-            this.label51.Text = "[sec/sam.]";
+            this.label51.Text = "[sam./sec]";
             // 
             // comboBox1
             // 
@@ -289,6 +304,22 @@
             this.label50.Size = new System.Drawing.Size(82, 13);
             this.label50.TabIndex = 27;
             this.label50.Text = "Subsampling:";
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(599, 104);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(57, 20);
+            this.textBox4.TabIndex = 5;
+            // 
+            // label49
+            // 
+            this.label49.AutoSize = true;
+            this.label49.Location = new System.Drawing.Point(559, 86);
+            this.label49.Name = "label49";
+            this.label49.Size = new System.Drawing.Size(131, 13);
+            this.label49.TabIndex = 26;
+            this.label49.Text = "Initial Mixing Time [s]:";
             // 
             // panel13
             // 
@@ -1620,6 +1651,8 @@
         private System.Windows.Forms.Label label51;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label50;
+        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.Label label49;
         private System.Windows.Forms.Panel panel13;
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.CheckBox checkBox1;
@@ -1729,6 +1762,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column5;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
         private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.Label label52;
 
     }
 }
