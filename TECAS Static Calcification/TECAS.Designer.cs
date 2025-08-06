@@ -753,9 +753,9 @@
             this.label46.ForeColor = System.Drawing.Color.Red;
             this.label46.Location = new System.Drawing.Point(114, 42);
             this.label46.Name = "label46";
-            this.label46.Size = new System.Drawing.Size(36, 16);
+            this.label46.Size = new System.Drawing.Size(32, 16);
             this.label46.TabIndex = 86;
-            this.label46.Text = "0 ml";
+            this.label46.Text = "0 ul";
             // 
             // label47
             // 
@@ -774,9 +774,9 @@
             this.label44.ForeColor = System.Drawing.Color.Red;
             this.label44.Location = new System.Drawing.Point(97, 26);
             this.label44.Name = "label44";
-            this.label44.Size = new System.Drawing.Size(36, 16);
+            this.label44.Size = new System.Drawing.Size(32, 16);
             this.label44.TabIndex = 84;
-            this.label44.Text = "0 ml";
+            this.label44.Text = "0 ul";
             // 
             // label45
             // 
@@ -1679,7 +1679,7 @@
             this.MaximumSize = new System.Drawing.Size(729, 510);
             this.MinimumSize = new System.Drawing.Size(729, 510);
             this.Name = "TECAS";
-            this.Text = "TECAS CSR V2.3";
+            this.Text = "TECAS CSR V2.4";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TECAS_FormClosing);
             this.Load += new System.EventHandler(this.TECAS_Load);
             this.tabPage4.ResumeLayout(false);
