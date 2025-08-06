@@ -53,13 +53,9 @@ namespace TECAS_Static_Calcification
         double AccumVolInf = 0, SubSampling=0, WdrVol=1000;
         static private System.Timers.Timer aTimer;
 
-        private class StateObjClass
-        {
-            // Used to hold parameters for calls to TimerTask. 
-            public int SomeValue;
-            public System.Threading.Timer TimerReference;
-            public bool TimerCanceled;
-        }
+        //Zoom
+        double xMin, yMin, xMax, yMax;
+        double posXStart, posYStart, posXFinish, posYFinish;
 
         //***************************
 
@@ -292,6 +288,7 @@ namespace TECAS_Static_Calcification
                     checkBox2.Checked = true;
                     label48.Visible = false;
                     button19.Enabled = false;
+                    textBox1.Enabled = true;
                     return;
             }
             while (!requestedExit)
@@ -1099,6 +1096,7 @@ namespace TECAS_Static_Calcification
                 button15.Enabled = true;
                 button14.Enabled = false;
                 Paused = false;
+                button14.Text = "Start";
                 timer4.Enabled = true;
                 textBox2.Enabled = false;                
                 return;
@@ -1222,15 +1220,15 @@ namespace TECAS_Static_Calcification
                             break;
                         case 1:
                             ExpAvgVal = ExpAccVal / 30;
-                            label13.Text = String.Format("{0:0.000000000 V}", dblValue);
-                            label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);
+                            /*label13.Text = String.Format("{0:0.000000000 V}", dblValue);
+                            label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);*/
                             //******************************************************
                             Deviation = Convert.ToDouble(textBox2.Text) - ExpAvgVal;
                             //******************************************************                        
-                            label17.Text = String.Format("{0:0.0000000}", Deviation);
+                            /*label17.Text = String.Format("{0:0.0000000}", Deviation);
                             label21.Text = String.Format("{0}", (DateTime.Now - ExpStart).Days)+ " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
                             //******************************************************
-                            label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
+                            label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";*/
 
                             ExpTicks = 0;
                             ExpAccVal = 0;
@@ -1267,10 +1265,15 @@ namespace TECAS_Static_Calcification
                             InfStarted = true;
                             ExpWaitTime=DateTime.Now;
                             VoltoInf = ((Deviation * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
-                            if (VoltoInf < 10)
-                                VoltoInf = (10 - SyrCalIntercept) / SyrCalSlope;
+                            if (VoltoInf < 20)
+                                VoltoInf = (20 - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf > 50)
                                 VoltoInf = (50 - SyrCalIntercept) / SyrCalSlope;
+                            /*VoltoInf = ((Deviation * (60 / 0.05)) - SyrCalIntercept) / SyrCalSlope;
+                            if (VoltoInf < 30)
+                                VoltoInf = (30 - SyrCalIntercept) / SyrCalSlope;
+                            if (VoltoInf > 60)
+                                VoltoInf = (60 - SyrCalIntercept) / SyrCalSlope;*/
                             serialPort1.Write("DIR INF\r\n");
                             System.Threading.Thread.Sleep(20);
                             serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");
@@ -1285,7 +1288,7 @@ namespace TECAS_Static_Calcification
                             serialPort1.Write("DIS\r\n");
                             System.Threading.Thread.Sleep(20);
                             _Reading = serialPort1.ReadExisting();
-                            if (Convert.ToDouble(_Reading.Substring(5, 5)) >= VoltoInf)
+                            if (Convert.ToDouble(_Reading.Substring(5, 5)) >= VoltoInf || DateTime.Now.AddSeconds(-3) > ExpWaitTime) //up to 3 senconds to reach
                             {
                                 InfStarted = false;
                                 if (AccumVolInf > WdrVol)
@@ -1329,6 +1332,12 @@ namespace TECAS_Static_Calcification
                         chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
                         chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
                         chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
+
+                        label13.Text = String.Format("{0:0.000000000 V}", dblValue);
+                        label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);                     
+                        label17.Text = String.Format("{0:0.0000000}", Deviation);
+                        label21.Text = String.Format("{0}", (DateTime.Now - ExpStart).Days)+ " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
+                        label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
                     }));
             }
         }
@@ -1362,7 +1371,12 @@ namespace TECAS_Static_Calcification
 
         private void button13_Click(object sender, EventArgs e)
         {
+            if (MessageBox.Show("Are you sure you want to Pause?", "Pause?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            {
+                return;
+            }
             Paused = true;
+            button14.Text = "Resume";
             button13.Enabled = false;
             button15.Enabled = false;
             button14.Enabled = true;
@@ -1371,9 +1385,12 @@ namespace TECAS_Static_Calcification
 
         private void button15_Click(object sender, EventArgs e)
         {
+            if (MessageBox.Show("Are you sure you want to stop?", "Stop?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            {
+                return;
+            }
             serialPort1.Close();
             timer4.Enabled = false;
-  
             aTimer.Enabled = false;
             button13.Enabled = false;
             button15.Enabled = false;
@@ -1421,6 +1438,55 @@ namespace TECAS_Static_Calcification
             }
             if (serialPort1.IsOpen)
                 serialPort1.Close();
+        }
+
+        //*********************************************************************************
+        //***********************************ZOOM******************************************
+
+        private void chData_MouseWheel1(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                xMin = chart4.ChartAreas[0].AxisX.ScaleView.ViewMinimum;
+                xMax = chart4.ChartAreas[0].AxisX.ScaleView.ViewMaximum;
+                yMin = chart4.ChartAreas[0].AxisY.ScaleView.ViewMinimum;
+                yMax = chart4.ChartAreas[0].AxisY.ScaleView.ViewMaximum;
+
+                if (e.Delta < 0)
+                {
+                    posXStart = chart4.ChartAreas[0].AxisX.PixelPositionToValue(e.Location.X) - (xMax - xMin) * 4;
+                    posXFinish = chart4.ChartAreas[0].AxisX.PixelPositionToValue(e.Location.X) + (xMax - xMin) * 4;
+                    posYStart = chart4.ChartAreas[0].AxisY.PixelPositionToValue(e.Location.Y) - (yMax - yMin) * 4;
+                    posYFinish = chart4.ChartAreas[0].AxisY.PixelPositionToValue(e.Location.Y) + (yMax - yMin) * 4;
+                    chart4.ChartAreas[0].AxisX.ScaleView.Zoom(posXStart, posXFinish);
+                    chart4.ChartAreas[0].AxisY.ScaleView.Zoom(posYStart, posYFinish);
+                }
+
+                if (e.Delta > 0)
+                {
+                    posXStart = chart4.ChartAreas[0].AxisX.PixelPositionToValue(e.Location.X) - (xMax - xMin) / 4;
+                    posXFinish = chart4.ChartAreas[0].AxisX.PixelPositionToValue(e.Location.X) + (xMax - xMin) / 4;
+                    posYStart = chart4.ChartAreas[0].AxisY.PixelPositionToValue(e.Location.Y) - (yMax - yMin) / 4;
+                    posYFinish = chart4.ChartAreas[0].AxisY.PixelPositionToValue(e.Location.Y) + (yMax - yMin) / 4;
+                    chart4.ChartAreas[0].AxisX.ScaleView.Zoom(posXStart, posXFinish);
+                    chart4.ChartAreas[0].AxisY.ScaleView.Zoom(posYStart, posYFinish);
+                }
+            }
+            catch { }
+        }
+
+        private void chart4_MouseEnter(object sender, EventArgs e)
+        {
+            chart4.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.chData_MouseWheel1);
+            chart4.Focus();
+        }
+
+        private void chart4_MouseLeave(object sender, EventArgs e)
+        {
+            chart4.MouseWheel -= new System.Windows.Forms.MouseEventHandler(this.chData_MouseWheel1);
+            chart4.Focus();
+            chart4.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
+            chart4.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
         }
 
 

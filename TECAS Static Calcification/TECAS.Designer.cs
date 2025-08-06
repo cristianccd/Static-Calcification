@@ -620,6 +620,8 @@
             this.chart4.Size = new System.Drawing.Size(570, 320);
             this.chart4.TabIndex = 0;
             this.chart4.Text = "chart4";
+            this.chart4.MouseEnter += new System.EventHandler(this.chart4_MouseEnter);
+            this.chart4.MouseLeave += new System.EventHandler(this.chart4_MouseLeave);
             // 
             // tabPage3
             // 
