@@ -1679,7 +1679,7 @@
             this.MaximumSize = new System.Drawing.Size(729, 510);
             this.MinimumSize = new System.Drawing.Size(729, 510);
             this.Name = "TECAS";
-            this.Text = "TECAS CSR V2.2";
+            this.Text = "TECAS CSR V2.3";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TECAS_FormClosing);
             this.Load += new System.EventHandler(this.TECAS_Load);
             this.tabPage4.ResumeLayout(false);

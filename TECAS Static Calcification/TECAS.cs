@@ -51,7 +51,7 @@ namespace TECAS_Static_Calcification
         int ExpState = 0, GraphPt=1, graphUpdate;
         double AccumVolInf = 0, SubSampling=0, WdrVol=1000, CalcVol=0, ReadVol=0;
         static private System.Timers.Timer aTimer;
-        StreamWriter sw;
+        StreamWriter sw, swexp;
 
         //Zoom
         double xMin, yMin, xMax, yMax;
@@ -1180,8 +1180,6 @@ namespace TECAS_Static_Calcification
                     Paused = false;
                     //Change text of the button
                     button14.Text = "Start";
-                    timer4.Enabled = true;
-                    timer2.Enabled = false;
                     try
                     {
                         if (!serialPort1.IsOpen)
@@ -1206,6 +1204,8 @@ namespace TECAS_Static_Calcification
                     EnableTab(tabPage2, false);
                     EnableTab(tabPage3, false);
                     //enable the timer again for showing the graph
+                    timer4.Enabled = true;
+                    timer2.Enabled = false;
                     aTimer.Enabled = true;
                 }
                 return;
@@ -1334,8 +1334,8 @@ namespace TECAS_Static_Calcification
             {
                 if (!System.IO.Directory.Exists(Path))
                     System.IO.Directory.CreateDirectory(Path);
-                sw = new StreamWriter(Path+@"\"+DateTime.Now.ToString("yyyy-MM-dd HHmmss")+".csv");
-                sw.Write(_FirstLine);
+                swexp = new StreamWriter(Path+@"\"+DateTime.Now.ToString("yyyy-MM-dd HHmmss")+".csv");
+                swexp.Write(_FirstLine);
             }
             catch (Exception ex)
             {
@@ -1536,8 +1536,8 @@ namespace TECAS_Static_Calcification
                         chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
                         chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
                         chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
-                        sw.Write("," + TimeDif + "," + ExpAvgVal + ",,," + TimeDif + "," + AccumVolInf + ",,," + TimeDif + "," + Deviation + "\n");
-                        sw.Flush();
+                        swexp.Write("," + TimeDif + "," + ExpAvgVal + ",,," + TimeDif + "," + AccumVolInf + ",,," + TimeDif + "," + Deviation + "\n");
+                        swexp.Flush();
                         //Update if the pointer is divisible by the update
                         graphUpdate++;
                         if (graphUpdate % GraphPt == 0)
@@ -1626,7 +1626,7 @@ namespace TECAS_Static_Calcification
             aTimer.Enabled = false;
             //Close COM
             serialPort1.Close();
-            sw.Close();
+            swexp.Close();
             //Change controls
             button13.Enabled = false;
             button15.Enabled = false;

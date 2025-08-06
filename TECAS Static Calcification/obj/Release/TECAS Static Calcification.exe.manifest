@@ -43,8 +43,15 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="preRequisite" allowDelayedBinding="true">
-      <assemblyIdentity name="LJUDDotNet" version="3.45.0.0" publicKeyToken="9D6C109908595016" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LJUDDotNet.dll" size="40960">
+      <assemblyIdentity name="LJUDDotNet" version="3.43.0.0" publicKeyToken="9D6C109908595016" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <dsig:DigestValue>xsKD/sru+Gj9ZbBXfuejfc8C/ug=</dsig:DigestValue>
+      </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
@@ -55,7 +62,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>+gDfjZV6aRaXox58UqRdxE1n0q8=</dsig:DigestValue>
+        <dsig:DigestValue>uDp49aW7wB0QAz1IsIqMfiI5tIc=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
