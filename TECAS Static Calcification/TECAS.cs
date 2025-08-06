@@ -41,7 +41,6 @@ namespace TECAS_Static_Calcification
         LJUD.IO ioType = 0;
         LJUD.CHANNEL channel = 0;
         double dblValue = 0, dummyDouble = 0, dblValueAcc = 0, AvgVoltage = 0;
-        double dblValue1 = 0, dummyDouble1 = 0, dblValueAcc1 = 0, AvgVoltage1 = 0;
         int dummyInt = 0;
 
         //Experiment
@@ -49,8 +48,8 @@ namespace TECAS_Static_Calcification
         DateTime ExpStart, ExpWaitTime;
         bool InfStarted = false, TimeMix=false;
         bool Paused = false;
-        int ExpState = 0, GraphPt=1;
-        double AccumVolInf = 0, SubSampling=0, WdrVol=1000;
+        int ExpState = 0, GraphPt=1, graphUpdate;
+        double AccumVolInf = 0, SubSampling=0, WdrVol=1000, CalcVol=0, ReadVol=0;
         static private System.Timers.Timer aTimer;
         StreamWriter sw;
 
@@ -67,7 +66,6 @@ namespace TECAS_Static_Calcification
             EnableTab(tabPage2, false);
             //pH calibration initialization
             dataGridView2.Rows.Add(2);
-            
 
             //add 2 rows for each table (minimum for calibration)
             dataGridView1.Rows.Add(2);
@@ -95,6 +93,7 @@ namespace TECAS_Static_Calcification
             if (dataGridView2.RowCount <= 2)
                 button9.Enabled = false;
         }
+
         //Check for errors
         private bool pHCalErr()
         {
@@ -138,10 +137,11 @@ namespace TECAS_Static_Calcification
             return true;
         }
         //Open labjack and start timer
-        private void button10_Click(object sender, EventArgs e)
+        private void button10_Click(object sender, EventArgs e) //Start pH
         {
+            //disable the timer for pH measurement (if running)
             timer2.Enabled = false;
-
+            //Check for errors
             if(pHCalErr())
             {
                 //Open labjack and catch exception if not able to open 
@@ -163,6 +163,7 @@ namespace TECAS_Static_Calcification
                 //Block pH controls
                 textBox1.Enabled = false;
                 button8.Enabled = false;
+                //Block delete button if less than 2 samples
                 if (dataGridView2.RowCount <= 2)
                     button9.Enabled = false;
                 button10.Enabled = false;
@@ -170,6 +171,7 @@ namespace TECAS_Static_Calcification
                 button12.Enabled = false;
                 label48.Visible = true;
                 button19.Enabled = true;
+                //Set to 0 all the variables involved
                 pHCalState = 0;
                 pHCalSlope = 0;
                 pHCalIntercept = 0;
@@ -180,26 +182,24 @@ namespace TECAS_Static_Calcification
                 pHSampleNo = 0;
                 label10.Text = "0.00";
                 label12.Text = "00:00";
-                panel1.Visible = false;
+                //Put in 0 the data from the table
                 for (int i = 0; i < dataGridView2.RowCount; i++)
                     dataGridView2[1, i].Value = "";
-                /*button6.Enabled = true;
-                button7.Enabled = false;
-                textBox3.Enabled = true;*/
+                //Disable the rest of the tabs
                 EnableTab(tabPage2, false);
                 EnableTab(tabPage3, false);
                 EnableTab(tabPage4, false);
+                //enable timer again
                 timer3.Enabled = true;
             }
-            else
-                return;
         }
 
-    private void timer3_Tick(object sender, EventArgs e)
+        //Timer for the calibration of the electrode
+        private void timer3_Tick(object sender, EventArgs e) //every loop will enter the state machine and also read the DAQ
         {
             timer3.Enabled = false; //first disable the timer to perform actions
             bool requestedExit = false;
-            //blink label Please Wait...
+            //Blink label Please Wait...
             Waitlbltick++;
             if (Waitlbltick >= 10)
             {
@@ -207,7 +207,7 @@ namespace TECAS_Static_Calcification
                 label48.Visible = !label48.Visible;
             }
             //Start of calibration
-            switch (pHCalState)
+            switch (pHCalState) // Check for errors
             {
                 case 0://calibration started
                     pHQuestSample = MessageBox.Show("When you are ready to measure the Sample " + Convert.ToString(pHSampleNo + 1) + " press OK", "pH Meter Calibration", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
@@ -217,6 +217,7 @@ namespace TECAS_Static_Calcification
                         pHCalState = 1;
                         pHstartTime = DateTime.Now;
                     }
+                    //If cancelled stop and cancel the test
                     if (pHQuestSample == DialogResult.Cancel)
                     {
                         //Enable pH controls
@@ -225,19 +226,23 @@ namespace TECAS_Static_Calcification
                     }
                     timer3.Enabled = true;
                     break;
-                case 1://Start accumulating time and check if the target is reached
+                case 1: //Start accumulating time and check if the target is reached
                     label12.Text = String.Format("{0:00}", (DateTime.Now - pHstartTime).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - pHstartTime).Seconds);
+                    //If the time is reached -> state 2
                     if (Convert.ToDouble((DateTime.Now - pHstartTime).TotalMinutes) >= Convert.ToDouble(textBox1.Text))
                     {
                         pHCalState = 2; //Time reached
                         timer3.Enabled = true;
                         break;
                     }
+                    //Start adding the ticks to make the avg
                     pHTicks++;
+                    //Add the voltage value in an accum.
                     SumpHCal = SumpHCal + dblValue;
                     timer3.Enabled = true;
                     break;
                 case 2://Time reached, change sample or exit
+                    //Calculate the average voltage
                     pHAvgVal = SumpHCal / pHTicks;
                     dataGridView2[1, pHSampleNo].Value = String.Format("{0:0.0000}", pHAvgVal); ;
                     //reset values
@@ -245,8 +250,8 @@ namespace TECAS_Static_Calcification
                     pHTicks = 0;
                     SumpHCal = 0;
                     pHCalState = 0;
+                    //If the sample to check is higher than the count its over.
                     if (pHSampleNo >= dataGridView2.RowCount)
-                        //end of calibration
                         pHCalState = 10;
                     timer3.Enabled = true;
                     break;
@@ -273,37 +278,52 @@ namespace TECAS_Static_Calcification
                     /*Slope(b) = (NΣXY - (ΣX)(ΣY)) / (NΣX2 - (ΣX)2) Intercept(a) = (ΣY - b(ΣX)) / N */
                     pHCalSlope = (dataGridView2.RowCount * a - b * c) / (dataGridView2.RowCount*d - Math.Pow(b, 2));
                     pHCalIntercept=(c-pHCalSlope*b)/dataGridView2.RowCount;
+                    //Show the label for positive or negative according to the intercept
                     if(pHCalIntercept>=0)
                         label6.Text = "y=" + String.Format("{0:0.0000}", pHCalSlope) + " x+" + String.Format("{0:0.0000}", pHCalIntercept);
                     else
                         label6.Text = "y=" + String.Format("{0:0.0000}", pHCalSlope) + " x" + String.Format("{0:0.0000}", pHCalIntercept);
+                    //Write the R2
                     label5.Text = "R =  " + String.Format("{0:0.0000}", pHR2);
                     //Graph
                     chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[0,0].Value),pHCalSlope*Convert.ToDouble(dataGridView2[0,0].Value)+pHCalIntercept);
                     chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[0, dataGridView2.RowCount-1].Value), pHCalSlope * Convert.ToDouble(dataGridView2[0, dataGridView2.RowCount - 1].Value) + pHCalIntercept);
+                    //Show the equations
                     panel1.Visible = true;
+                    //Enable add row
                     button8.Enabled = true;
-                    if (dataGridView2.RowCount <= 2)
-                        button9.Enabled = false;
+                    //If the row amount is higher than 2 also enable the delete
+                    if (dataGridView2.RowCount > 2)
+                        button9.Enabled = true;
+                    //Enable the rest of the things and tabs
                     button10.Enabled = true;
                     button11.Enabled = true;
                     button12.Enabled = true;
                     EnableTab(tabPage2, true);
                     EnableTab(tabPage3, true);
                     EnableTab(tabPage4, true);
+                    //Set everything to 0 again (not pHCalSlope and pHCalIntercept)
                     pHTicks = 0;
                     SumpHCal = 0;
                     pHSampleNo = 0;
                     pHCalState = 0;
+                    //Enable start in pH read
                     button6.Enabled = true;
                     button7.Enabled = false;
+                    //Enable the textbox in pH read
                     textBox3.Enabled = true;
+                    //Check the box for successful calibration
                     checkBox2.Checked = true;
+                    //Disable the blinking text
                     label48.Visible = false;
+                    //Disable Cancel
                     button19.Enabled = false;
+                    //Enable the time textbox
                     textBox1.Enabled = true;
+                    label23.Text = String.Format("{0:0.0000}", pHCalSlope);
                     return;
             }
+            //Read the value in the DAQ
             while (!requestedExit)
             {
                 try
@@ -319,7 +339,6 @@ namespace TECAS_Static_Calcification
                     label10.Text = String.Format("{0:0.0000}", dblValue);
                 try
                 {
-                    
                     LJUD.GetNextResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
                 catch (LabJackUDException h)
@@ -331,7 +350,7 @@ namespace TECAS_Static_Calcification
                 }
             }
         }
-
+        //Open and load the file from PC
         private void button11_Click(object sender, EventArgs e)
         {
             try
@@ -349,6 +368,7 @@ namespace TECAS_Static_Calcification
                     else
                         label6.Text = "y=" + String.Format("{0:0.0000}", pHCalSlope) + " x" + String.Format("{0:0.0000}", pHCalIntercept);
                     label5.Text = "R  =" + String.Format("{0:0.0000}", pHR2);
+                    label23.Text = String.Format("{0:0.0000}", pHCalSlope);
                     panel1.Visible = true;
                     chart3.Series["Series1"].Points.AddXY(0, pHCalIntercept);
                     chart3.Series["Series1"].Points.AddXY(14, pHCalSlope * 14 + pHCalIntercept);
@@ -365,14 +385,14 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show(ex.Message, "Calibration", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        //Save file to PC
         private void button12_Click(object sender, EventArgs e)
         {
             try
             {
                 if (saveFileDialog2.ShowDialog() == DialogResult.OK)
                 {
-                    StreamWriter sw = new StreamWriter(saveFileDialog2.FileName);
+                    sw = new StreamWriter(saveFileDialog2.FileName);
                     sw.Write(Convert.ToString(pHCalSlope)+"#"+Convert.ToString(pHCalIntercept)+"#"+Convert.ToString(pHR2));
                     sw.Close();
                 }
@@ -392,16 +412,19 @@ namespace TECAS_Static_Calcification
             EnableTab(tabPage3, true);
             EnableTab(tabPage4, true);
         }
-
+        //Cancel pH calibration
         private void CancelpHTest()
         {
+            //disable timer
             timer3.Enabled = false;
+            //Enable the controls
             textBox1.Enabled = true;
             button8.Enabled = true;
             button9.Enabled = false;
             button10.Enabled = true;
             button11.Enabled = true;
             button12.Enabled = false;
+            //Set everything back to normal state
             pHCalState = 0;
             pHCalSlope = 0;
             pHCalIntercept = 0;
@@ -414,9 +437,11 @@ namespace TECAS_Static_Calcification
             button19.Enabled = false;
             label10.Text = "0.00";
             label12.Text = "00:00";
+            //Clear the values and add two rows
             dataGridView2.Rows.Clear();
             dataGridView2.Rows.Add(2);
         }
+
         //*********************************************************************************
         //***********************************END*******************************************
 
@@ -425,6 +450,13 @@ namespace TECAS_Static_Calcification
 
         private void button6_Click(object sender, EventArgs e)
         {
+            //Check for calibration
+            if (!checkBox2.Checked)
+            {
+                MessageBox.Show("pH Calibration not done!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            //Read the setpoint
             if (textBox3.Text != "")
             {
                 try
@@ -441,10 +473,13 @@ namespace TECAS_Static_Calcification
             {
                 textBox3.Text = "0";
             }
+            //disable start and enable stop
             button6.Enabled = false;
             textBox3.Enabled = false;
             button7.Enabled = true;
+
             //Configure DAQ
+            //Open labjack and catch exception if not able to open          
             try
             {
                 if (u3 == null)
@@ -455,14 +490,10 @@ namespace TECAS_Static_Calcification
             }
             catch (LabJackUDException h)
             {
-                MessageBox.Show("Error opening DAQ. "+h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error opening DAQ. "+ h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (!checkBox2.Checked)
-            {
-                MessageBox.Show("pH Calibration not done!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+
             pHMeasureStart = DateTime.Now;
             chart2.ChartAreas[0].AxisY.LabelStyle.Format = "#.###";
             chart2.ChartAreas[0].AxisX.LabelStyle.Format = "#";
@@ -470,16 +501,19 @@ namespace TECAS_Static_Calcification
             chart2.ChartAreas[0].AxisX.ScrollBar.Enabled = false;
             foreach (var series in chart2.Series)
                 series.Points.Clear();
-         
+            //Enable timer for pH reading
             timer2.Enabled = true;
         }
-
+        //Read pH value
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //disable timer
             timer2.Enabled = false;
+            //Read from DAQ
             bool requestedExit = false;
             while (!requestedExit)
             {
+                //Read first value and check the voltage
                 try
                 {
                     LJUD.GoOne(u3.ljhandle);
@@ -494,8 +528,7 @@ namespace TECAS_Static_Calcification
                     pHMeasureVal = (dblValue - pHCalIntercept) / pHCalSlope;
                     pHMeasureAcc += pHMeasureVal;
                     dblValueAcc += dblValue;
-                    
-                    pHMeasureTicks++;
+                    pHMeasureTicks++; //Start accum of read values every 75ms to make an average
                     if (pHMeasureTicks >= 10)//average between N samples
                     {
                         pHMeasureAvg = pHMeasureAcc / 10;
@@ -507,9 +540,10 @@ namespace TECAS_Static_Calcification
                         else
                             label37.Text = String.Format("{0:0.000}", pHMeasureAvg - Convert.ToDouble(textBox3.Text));
                         chart2.Series["Series1"].Points.AddXY((DateTime.Now - pHMeasureStart).TotalSeconds, pHMeasureAvg);
-
+                        //If the seconds are more than 300 start resizing
                         if ((DateTime.Now - pHMeasureStart).TotalSeconds>300)
                             chart2.ChartAreas[0].AxisX.ScaleView.Position = (DateTime.Now-pHMeasureStart).TotalSeconds - 300;
+                        //Reset the accum.
                         pHMeasureAcc = 0;
                         dblValueAcc = 0;
                         pHMeasureTicks = 0;
@@ -527,9 +561,10 @@ namespace TECAS_Static_Calcification
                         MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            //enable timer again
             timer2.Enabled = true;
         }
-
+        //Stop the reading
         private void button7_Click(object sender, EventArgs e)
         {
             button7.Enabled = false;
@@ -597,6 +632,7 @@ namespace TECAS_Static_Calcification
                     return false;
                 }
             }
+
             if (dataGridView1.RowCount < 2)
             {
                 MessageBox.Show("Not enough samples for calibration!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -611,8 +647,6 @@ namespace TECAS_Static_Calcification
         {
             if (CheckSyrCalErr())//Check errors
             {
-
-                chart1.Series["Series1"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
                 //open port if not open
                 if (comboBox22.SelectedIndex != -1)
                 {
@@ -627,11 +661,12 @@ namespace TECAS_Static_Calcification
                     {
                         MessageBox.Show(ex.Message, "Opening Port", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
-                    }
-                    
+                    } 
                 }
+                //Set everything before starting
                 SampleNo = 0;
                 State = 0;
+                //Send config commands to the pump
                 serialPort1.Write("STP\r\n");
                 System.Threading.Thread.Sleep(20);
                 serialPort1.Write("CLD INF\r\n");
@@ -642,6 +677,7 @@ namespace TECAS_Static_Calcification
                 System.Threading.Thread.Sleep(20);
                 serialPort1.Write("RAT 800 MH\r\n");
                 System.Threading.Thread.Sleep(20);
+                //Clear the series
                 foreach (var series in chart1.Series)
                     series.Points.Clear();
                 //Block controls
@@ -650,9 +686,6 @@ namespace TECAS_Static_Calcification
                 textBox21.Enabled = false;
                 textBox22.Enabled = false;
                 checkBox4.Enabled = false;
-
-                /*button16.Enabled = false;
-                button17.Enabled = false;*/
                 panel14.Enabled = false;
                 button4.Enabled = false;
                 button5.Enabled = false;
@@ -660,8 +693,8 @@ namespace TECAS_Static_Calcification
                 button2.Enabled = false;
                 button3.Enabled = false;
                 button20.Enabled = true;
+                //Enable timer
                 timer1.Enabled = true;
-
             }  
         }
 
@@ -671,72 +704,61 @@ namespace TECAS_Static_Calcification
             switch (State)
             { 
                 case 0://sampling started
-                        if (SampleNo == dataGridView1.Rows.Count) //end of samples
-                        {
-                            label1.Text = "Sample No.: " + Convert.ToString(SampleNo);
-                            State = 10; //quit
-                            timer1.Enabled = true;
-                            break;
-                        }
-                    
-                        SyrQuestSample=MessageBox.Show("When you are ready to measure the sample " + Convert.ToString(SampleNo+1) + " press OK", "Infuse Sample", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                        if (SyrQuestSample == DialogResult.OK)
-                        {
-                            //set the infuse volumes according to the number of the sample
-                            serialPort1.Write("VOL " + dataGridView1[0, SampleNo].Value.ToString() + "\r\n");
-                            System.Threading.Thread.Sleep(20);
-                            //if ml, set to ml
-                            if (dataGridView1[1, SampleNo].Value.ToString() == "ml")
-                                serialPort1.Write("VOL ML\r\n");
-                            //otherwise ul
-                            else
-                                serialPort1.Write("VOL UL\r\n");
-                            System.Threading.Thread.Sleep(20);
-                            serialPort1.Write("RUN\r\n"); //start running
-                            State = 1; //switch state to running, needs to wait the ammount desired
-                            SampleNo++;
-                            label1.Text = "Sample No.: " + Convert.ToString(SampleNo);
-                        }
-                        if (SyrQuestSample == DialogResult.Cancel)
-                        {
-                            dataGridView1.Enabled = true;
-                            comboBox22.Enabled = true;
-                            textBox21.Enabled = true;
-                            textBox22.Enabled = true;
-                            checkBox4.Enabled = true;
-                            button16.Enabled = true;
-                            button17.Enabled = true;
-                            button4.Enabled = true;
-                            button5.Enabled = false;
-                            button1.Enabled = true;
-                            if (dataGridView1.RowCount > 2)
-                                button2.Enabled = true;
-                            button3.Enabled = true;
-                            button20.Enabled = false;
-                            serialPort1.Close();
-                            return;
-                        }
-                        timer1.Enabled = true;    
-                        break;
-                    
+                    SyrQuestSample=MessageBox.Show("When you are ready to measure the sample " + Convert.ToString(SampleNo+1) + " press OK", "Infuse Sample", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                    if (SyrQuestSample == DialogResult.OK)
+                    {
+                        //set the infuse volumes according to the number of the sample
+                        serialPort1.Write("VOL " + dataGridView1[0, SampleNo].Value.ToString() + "\r\n");
+                        System.Threading.Thread.Sleep(20);
+                        //if ml, set to ml
+                        if (dataGridView1[1, SampleNo].Value.ToString() == "ml")
+                            serialPort1.Write("VOL ML\r\n");
+                        //otherwise ul
+                        else
+                            serialPort1.Write("VOL UL\r\n");
+                        System.Threading.Thread.Sleep(20);
+                        serialPort1.Write("RUN\r\n"); //start running
+                        State = 1; //switch state to running, needs to wait the ammount desired
+                        SampleNo++;
+                        label1.Text = "Sample No.: " + Convert.ToString(SampleNo);
+                    }
+                    if (SyrQuestSample == DialogResult.Cancel)
+                    {
+                        dataGridView1.Enabled = true;
+                        comboBox22.Enabled = true;
+                        textBox21.Enabled = true;
+                        textBox22.Enabled = true;
+                        checkBox4.Enabled = true;
+                        button16.Enabled = true;
+                        button17.Enabled = true;
+                        button4.Enabled = true;
+                        button5.Enabled = false;
+                        button1.Enabled = true;
+                        if (dataGridView1.RowCount > 2)
+                            button2.Enabled = true;
+                        button3.Enabled = true;
+                        button20.Enabled = false;
+                        serialPort1.Close();
+                        return;
+                    }
+                    timer1.Enabled = true;    
+                    break;
                 case 1:
                     serialPort1.ReadExisting();
                     serialPort1.Write("DIS\r\n");
                     System.Threading.Thread.Sleep(20);
                     _Reading=serialPort1.ReadExisting();
                     label33.Text = "Current Volume: " + _Reading.Substring(5, 5) + _Reading.Substring(16, 2).ToLower();
+                    //Infusion completed -> State 2
                     if (Convert.ToDouble(_Reading.Substring(5, 5)) >= Convert.ToDouble(dataGridView1[0, SampleNo-1].Value.ToString()))
-                    {
                         State = 2;//input volume form2
-                        label33.Text = "Current Volume: " + _Reading.Substring(5, 5) + _Reading.Substring(16, 2).ToLower();
-                    }
                     timer1.Enabled = true;
                     break;
                 case 2:
                     _SampleUnits = dataGridView1[1, SampleNo-1].Value.ToString();
+                    //Create a new form with the sample sent to write
                     SyrVolForm = new SyrSamInp(_SampleUnits);
                     SyrVolForm.Show();
-
                     this.Enabled = false;
                     State = 3;
                     timer1.Enabled = true;
@@ -745,11 +767,18 @@ namespace TECAS_Static_Calcification
                     timer1.Enabled = true;
                     break;
                 case 4:
+                    //enable form again
                     this.Enabled = true;
                     dataGridView1[2, SampleNo - 1].Value = SampleVolume;
                     _SampleUnits = Convert.ToString(dataGridView1[1, SampleNo - 1].Value);
                     dataGridView1[3, SampleNo - 1].Value = _SampleUnits;
-                    State = 0;
+                    if (SampleNo == dataGridView1.Rows.Count) //end of samples
+                    {
+                        label1.Text = "Sample No.: " + Convert.ToString(SampleNo);
+                        State = 10; //quit
+                    }
+                    else // go one more sample
+                        State = 0;
                     timer1.Enabled = true;
                     break;
                 case 10:
@@ -798,34 +827,37 @@ namespace TECAS_Static_Calcification
                     /*Slope(b) = (NΣXY - (ΣX)(ΣY)) / (NΣX2 - (ΣX)2) Intercept(a) = (ΣY - b(ΣX)) / N */
                     SyrCalSlope = (dataGridView1.RowCount * a - b * c) / (dataGridView1.RowCount*d - Math.Pow(b, 2));
                     SyrCalIntercept=(c-SyrCalSlope*b)/dataGridView1.RowCount;
-
+                    //Write text values with the correct intercept
                     label30.Text = "R =  " + String.Format("{0:0.0000}", SyrR2);
                     if (SyrCalIntercept>=0)
                         label29.Text = "y=" + String.Format("{0:0.0000}", SyrCalSlope) + " x+" + String.Format("{0:0.0000}", SyrCalIntercept);
                     else
                         label29.Text = "y=" + String.Format("{0:0.0000}", SyrCalSlope) + " x" + String.Format("{0:0.0000}", SyrCalIntercept);
                     serialPort1.Close();
+                    //Check the box for correct calibration
                     checkBox1.Checked = true;
+                    //Make everything visible again
                     panel5.Visible = true;
                     dataGridView1.Enabled = true;
                     comboBox22.Enabled = true;
                     textBox21.Enabled = true;
                     textBox22.Enabled = true;
-                    
                     //Enable checkbox, disable controls of manual infusion
                     checkBox4.Checked = false;
                     checkBox4.Enabled = true;
                     button16.Enabled = false;
                     button17.Enabled = false;
                     button18.Enabled = false;
-
+                    //Enable buttons for open and save
                     button4.Enabled = true;
                     button5.Enabled = true;
                     button1.Enabled = true;
+                    //Enable delete only if there are more than 2 samples
                     if(dataGridView1.RowCount>2)
                         button2.Enabled = true;
                     button3.Enabled = true;
                     button20.Enabled = false;
+                    label35.Text = String.Format("{0:0.0000}", SyrCalSlope);
                     return;
             }
         }
@@ -846,6 +878,7 @@ namespace TECAS_Static_Calcification
             button5.Enabled = false;
             button1.Enabled = true;
             checkBox1.Enabled = false;
+            //Enable delete only if there are more than 2 samples
             if (dataGridView1.RowCount > 2)
                 button2.Enabled = true;
             button3.Enabled = true;
@@ -853,7 +886,7 @@ namespace TECAS_Static_Calcification
             serialPort1.Close();
         }
 
-        //Open
+        //Open calibration
         private void button4_Click(object sender, EventArgs e)
         {
             try
@@ -875,6 +908,7 @@ namespace TECAS_Static_Calcification
                     else
                         label29.Text = "y=" + String.Format("{0:0.0000}", SyrCalSlope) + " x" + String.Format("{0:0.0000}", SyrCalIntercept);
                     label30.Text = "R =  " + String.Format("{0:0.0000}", SyrR2);
+                    label35.Text = String.Format("{0:0.0000}", SyrCalSlope);
                     panel5.Visible = true;
                     chart1.Series["Series2"].Points.AddXY(Convert.ToDouble(_LoadCal.Split('#')[3]), Convert.ToDouble(_LoadCal.Split('#')[4]));
                     chart1.Series["Series2"].Points.AddXY(Convert.ToDouble(_LoadCal.Split('#')[5]), Convert.ToDouble(_LoadCal.Split('#')[6]));
@@ -895,7 +929,7 @@ namespace TECAS_Static_Calcification
             {
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    StreamWriter sw = new StreamWriter(saveFileDialog1.FileName);
+                    sw = new StreamWriter(saveFileDialog1.FileName);
                     /*COM#Diameter#Capacity#x1#y1#x2#y2#slope#intercept#r2#*/
                     sw.Write(comboBox22.SelectedIndex.ToString() + "#" + textBox21.Text + "#" + textBox22.Text + "#" + Convert.ToString(chart1.Series["Series2"].Points[0].XValue) + "#" + Convert.ToString(chart1.Series["Series2"].Points[0].YValues[0]) + "#" + Convert.ToString(chart1.Series["Series2"].Points[1].XValue) + "#" + Convert.ToString(chart1.Series["Series2"].Points[1].YValues[0]) + "#" + Convert.ToString(SyrCalSlope) + "#" + Convert.ToString(SyrCalIntercept) + "#" + Convert.ToString(SyrR2));
                     sw.Close();
@@ -922,11 +956,12 @@ namespace TECAS_Static_Calcification
                 button2.Enabled = false;
         }
 
+        //Manual infusion
         private void checkBox4_CheckedChanged(object sender, EventArgs e)
         {
-            
             if (checkBox4.Checked == true)
             {
+                //Check for errors
                 if (string.IsNullOrWhiteSpace(textBox21.Text) || string.IsNullOrWhiteSpace(textBox22.Text))
                 {
                     MessageBox.Show("Please input the syringe specifications", "Diameter and capacity not set", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -949,6 +984,7 @@ namespace TECAS_Static_Calcification
                 }
                 try
                 {
+                    //set the initial conditions to 0
                     serialPort1.Write("VOL 0\r\n");
                     System.Threading.Thread.Sleep(20);
                     serialPort1.Write("CLD INF\r\n");
@@ -960,7 +996,7 @@ namespace TECAS_Static_Calcification
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "Port communication!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     checkBox4.Checked = false;
                     return;
                 }
@@ -988,7 +1024,7 @@ namespace TECAS_Static_Calcification
                 }
             }
         }
-
+        //Infuse Manual
         private void button17_MouseDown(object sender, MouseEventArgs e)
         {
             try
@@ -1013,7 +1049,6 @@ namespace TECAS_Static_Calcification
             serialPort1.Write("RUN\r\n");
             System.Threading.Thread.Sleep(20);
         }
-
         private void button17_MouseUp(object sender, MouseEventArgs e)
         {
             serialPort1.Write("STP\r\n");
@@ -1025,7 +1060,7 @@ namespace TECAS_Static_Calcification
             label44.Text = String.Format("{0:0.0000}",(Convert.ToDouble(_Reading.Substring(5, 5))))+ " " + _Reading.Substring(16, 2).ToLower(); 
             serialPort1.Close();
         }
-
+        //Withdraw Manual
         private void button16_MouseDown(object sender, MouseEventArgs e)
         {
             try
@@ -1050,7 +1085,6 @@ namespace TECAS_Static_Calcification
             serialPort1.Write("RUN\r\n");
             System.Threading.Thread.Sleep(20);
         }
-
         private void button16_MouseUp(object sender, MouseEventArgs e)
         {
             _Reading = serialPort1.ReadExisting();
@@ -1062,7 +1096,7 @@ namespace TECAS_Static_Calcification
             System.Threading.Thread.Sleep(20);
             serialPort1.Close();
         }
-
+        //Clear Values manual infusion
         private void button18_Click(object sender, EventArgs e)
         {
             try
@@ -1094,7 +1128,7 @@ namespace TECAS_Static_Calcification
         //*********************************************************************************
         //******************************STATIC EXPERIMENT**********************************
 
-        private bool CheckExpErr()
+        private bool CheckExpErr() //Check errors
         {
             try
             {
@@ -1136,8 +1170,7 @@ namespace TECAS_Static_Calcification
         }
         private void button14_Click(object sender, EventArgs e)
         {
-            
-            if (Paused)
+            if (Paused) //If paused and pressed resume
             {
                 if (CheckExpErr())
                 {
@@ -1145,41 +1178,45 @@ namespace TECAS_Static_Calcification
                     button15.Enabled = true;
                     button14.Enabled = false;
                     Paused = false;
+                    //Change text of the button
                     button14.Text = "Start";
                     timer4.Enabled = true;
                     timer2.Enabled = false;
-
-                    if (!serialPort1.IsOpen)
+                    try
                     {
-                        serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
-                        serialPort1.Open();
+                        if (!serialPort1.IsOpen)
+                        {
+                            serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
+                            serialPort1.Open();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
                     //Clear Values
-
                     ExpState = 0;
                     ExpTicks = 0;
                     ExpAccVal = 0;
-                    dblValue1 = 0;
-                    dblValueAcc1 = 0;
-                    label23.Text = String.Format("{0:0.0000}", pHCalSlope);
-                    label35.Text = String.Format("{0:0.0000}", SyrCalSlope);
+                    //Set the controls to disable and the tabs
                     textBox2.Enabled = false;
                     textBox4.Enabled = false;
                     EnableTab(tabPage1, false);
                     EnableTab(tabPage2, false);
                     EnableTab(tabPage3, false);
+                    //enable the timer again for showing the graph
                     aTimer.Enabled = true;
-
                 }
                 return;
             }
+            //If it is the start, Check for errors
             if (!CheckExpErr())
             {
                 if (serialPort1.IsOpen)
                     serialPort1.Close();
                 return;
             }
-
             try
             {
                 if (!serialPort1.IsOpen)
@@ -1193,6 +1230,7 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show(ex.Message, "Port opening", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            //Send commands to the pump
             serialPort1.Write("STP\r\n");
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("CLD INF\r\n");
@@ -1207,16 +1245,16 @@ namespace TECAS_Static_Calcification
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("VOL UL\r\n");
             System.Threading.Thread.Sleep(20);
-
+            //Clear the accum
             AccumVolInf = 0;
-            dblValueAcc1 = 0;
-            dblValue1 = 0;
+            dblValueAcc = 0;
+            dblValue = 0;
             ExpState = 0;
             ExpTicks = 0;
             ExpAccVal = 0;
-            dblValue1 = 0;
-            dblValueAcc1 = 0;
-
+            dblValue = 0;
+            dblValueAcc = 0;
+            //Check the subsampling rate and load the divider for the graph
             try
             {
                 switch (comboBox1.SelectedIndex)
@@ -1264,28 +1302,31 @@ namespace TECAS_Static_Calcification
                 serialPort1.Close();
                 return;
             }
+            //Refresh the values of slopes
             label23.Text = String.Format("{0:0.0000}", pHCalSlope);
             label35.Text = String.Format("{0:0.0000}", SyrCalSlope);
+            //Format the chart axis
             chart4.ChartAreas[0].AxisY.LabelStyle.Format = "#.###";
             chart4.ChartAreas[0].AxisX.LabelStyle.Format = "#";
+            //Activate controls
             button13.Enabled = true;
             button15.Enabled = true;
             button14.Enabled = false;
-            foreach (var series in chart4.Series)
-                series.Points.Clear();
-            ExpState = 0;
             textBox2.Enabled = false;
             textBox4.Enabled = false;
             comboBox1.Enabled = false;
             checkBox5.Enabled = false;
             comboBox3.Enabled = false;
-           
+            //Clear Graph
+            foreach (var series in chart4.Series)
+                series.Points.Clear();
+            //Set initial state
+            ExpState = 0;
             // Create a timer with an interval.
             aTimer = new System.Timers.Timer(SubSampling);
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-
-            //Export Data
+            //Start Export Data
             string _FirstLine = "PH Setp.:"+ textBox2.Text +",Time[s],Value,,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value,\n";
             string[] Content = new string[chart4.Series["Series1"].Points.Count];
             string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ @"\Calcification Experiments";
@@ -1301,24 +1342,21 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show(ex.Message, "Error Writing File", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             } 
-
             ExpStart = DateTime.Now;
             //Disable all other timers that might be enabled
             timer1.Enabled = false;
             timer2.Enabled = false;
-            button6.Enabled = true;
-            button7.Enabled = false;
-            textBox3.Enabled = true;
             timer3.Enabled = false;
-
+            textBox3.Enabled = true;
+            //Disable other tabs
             EnableTab(tabPage1, false);
             EnableTab(tabPage2, false);
             EnableTab(tabPage3, false);
-
+            //Enable Graph and reading of DAQ
             aTimer.Enabled = true;
             timer4.Enabled = true;
         }
-
+        //Reading of DAQ
         private void timer4_Tick(object sender, EventArgs e)
         {
             timer4.Enabled = false;
@@ -1328,7 +1366,7 @@ namespace TECAS_Static_Calcification
                 try
                 {
                     LJUD.GoOne(u3.ljhandle);
-                    LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue1, ref dummyInt, ref dummyDouble1);
+                    LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
                 catch (LabJackUDException h)
                 {
@@ -1339,28 +1377,36 @@ namespace TECAS_Static_Calcification
                     switch (ExpState)
                     { 
                         case 0:
+                            //Initial state, accum the reading
                             ExpTicks++;
-                            ExpAccVal += (dblValue1 - pHCalIntercept) / pHCalSlope;
-                            dblValueAcc1 += dblValue1;
+                            ExpAccVal += (dblValue - pHCalIntercept) / pHCalSlope;
+                            dblValueAcc += dblValue;
+                            //If the ticks are 10, change state
                             if (ExpTicks >= 10)
                                 ExpState = 1;
                             break;
                         case 1:
+                            //Calculate the avgs
                             ExpAvgVal = ExpAccVal / 10;
-                            AvgVoltage1 = dblValueAcc1 / 10;
+                            AvgVoltage = dblValueAcc / 10;
+                            //Calculate the deviation
                             Deviation = ExpAvgVal - Convert.ToDouble(textBox2.Text);
+                            //Reset Ticks and accum.
                             ExpTicks = 0;
                             ExpAccVal = 0;
-                            dblValueAcc1 = 0;
-                            if (DateTime.Now.AddSeconds(0 - Convert.ToDouble(textBox4.Text)) < ExpStart) //Incubation time
+                            dblValueAcc = 0;
+                            //If the initial time is not reached go to state 0
+                            if (DateTime.Now.AddSeconds(0 - Convert.ToDouble(textBox4.Text)) < ExpStart)
                             {
                                 ExpState = 0;
                                 break;
                             }
+                            //If the pH value is over the setpoint and positive infusion was selected -> infuse
                             if (comboBox3.SelectedIndex == 0) // Positive Deviation Infusion
                             {
                                 if (Deviation > 0 && InfStarted == false && TimeMix == false)
                                 {
+
                                     ExpState = 2;
                                     serialPort1.Write("CLD INF\r\n");
                                     System.Threading.Thread.Sleep(20);
@@ -1369,7 +1415,7 @@ namespace TECAS_Static_Calcification
                                     break;
                                 }
                             }
-
+                            //If the pH value is under the setpoint and negative infusion was selected -> infuse
                             else //Negative Deviation
                             {
                                 if (Deviation < 0 && InfStarted == false && TimeMix == false)
@@ -1381,23 +1427,14 @@ namespace TECAS_Static_Calcification
                                     System.Threading.Thread.Sleep(20);
                                     break;
                                 }
-                            } 
-
-                            /*if (Deviation < 0 && InfStarted == false && TimeMix==false)
-                            {
-                                ExpState = 2;
-                                serialPort1.Write("CLD INF\r\n");
-                                System.Threading.Thread.Sleep(20);
-                                serialPort1.Write("CLD WDR\r\n");
-                                System.Threading.Thread.Sleep(20);
-                                break;
-                            }*/
-                            
+                            }
+                            //Check if it is infusing
                             if (InfStarted)
                             {
                                 ExpState = 3;
                                 break;
                             }
+                            //Timemix
                             if (TimeMix)
                             {
                                 if (DateTime.Now.AddSeconds(-10) > ExpWaitTime)
@@ -1407,50 +1444,73 @@ namespace TECAS_Static_Calcification
                             }
                             ExpState = 0;
                             break;
+                            ////////////////////////////////////////
                         case 2:
+                            //Infusion starts
                             InfStarted = true;
+                            //Set the timer to now to check if some secs passed
                             ExpWaitTime=DateTime.Now;
-                            VoltoInf = ((Math.Abs(Deviation) * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
+                            //Calculate the volume to infuse
+                            CalcVol = Math.Abs(Deviation) * (50 / 0.03);
+                            VoltoInf = (CalcVol - SyrCalIntercept) / SyrCalSlope;
+                            //Minimum: 20ul
                             if (VoltoInf < 20)
+                            {
                                 VoltoInf = (20 - SyrCalIntercept) / SyrCalSlope;
+                                CalcVol = 20;
+                            }
+                            //Max: 50ul
                             if (VoltoInf > 50)
+                            {
                                 VoltoInf = (50 - SyrCalIntercept) / SyrCalSlope;
+                                CalcVol = 50;
+                            }
+                            //Set the pump
                             serialPort1.Write("DIR INF\r\n");
                             System.Threading.Thread.Sleep(20);
                             serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");
-                            AccumVolInf = AccumVolInf + VoltoInf;
+                            //Accum the vol
+                            AccumVolInf += CalcVol;
                             System.Threading.Thread.Sleep(20);
                             serialPort1.Write("RUN\r\n");
                             System.Threading.Thread.Sleep(20);
                             ExpState=0;
+                            //Go back to 0 even it is infusing so it can read pH in the meanwhile
                             break;
                         case 3:
+                            //Read the value infused
                             _Reading = serialPort1.ReadExisting();
                             serialPort1.Write("DIS\r\n");
                             System.Threading.Thread.Sleep(20);
                             _Reading = serialPort1.ReadExisting();
-                            if (Convert.ToDouble(_Reading.Substring(5, 5)) >= VoltoInf || DateTime.Now.AddSeconds(-3) > ExpWaitTime) //up to 3 senconds to reach
+                            //Check if the read volume but corrected is bigger than the volume to infuse or 3 secs passed
+                            ReadVol = Convert.ToDouble(_Reading.Substring(5, 5));
+                            if (ReadVol*SyrCalSlope+SyrCalIntercept >= VoltoInf || DateTime.Now.AddSeconds(-3) > ExpWaitTime) //up to 3 senconds to reach
                             {
-                                InfStarted = false;
+                                InfStarted = false; //Infusion finished, check if 1ml was infused and recharge
                                 if (AccumVolInf > WdrVol && checkBox5.Checked==true)
                                 {
+                                    //Increment the Wdr
                                     WdrVol = WdrVol + 1000;
                                     serialPort1.Write("DIR WDR\r\n");
                                     System.Threading.Thread.Sleep(20);
+                                    //Write to the syringe
                                     serialPort1.Write("VOL " + String.Format("{0:0000}", (1000 - SyrCalIntercept) / SyrCalSlope) + "\r\n");
                                     System.Threading.Thread.Sleep(20);
                                     serialPort1.Write("RUN\r\n");
                                     System.Threading.Thread.Sleep(20);
                                 }
+                                //Mixing time
                                 TimeMix = true;
-                                ExpState = 0;
                             }
+                            //Back to read pH
+                            ExpState = 0;
                             break;
                     }
                 }
                 try
                 {
-                    LJUD.GetNextResult(u3.ljhandle, ref ioType, ref channel, ref dblValue1, ref dummyInt, ref dummyDouble1);
+                    LJUD.GetNextResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
                 catch (LabJackUDException h)
                 {
@@ -1460,22 +1520,25 @@ namespace TECAS_Static_Calcification
                         MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            //Enable timer again
             timer4.Enabled = true;
         }
 
-        int graphUpdate;
+        //Refresh Graph
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             if (InvokeRequired)
             {
                 Invoke(new MethodInvoker(delegate
                     {
+                        //Calculate the time from the beggining of the experiment
                         TimeDif = (DateTime.Now - ExpStart).TotalSeconds;
                         chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
                         chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
                         chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
                         sw.Write("," + TimeDif + "," + ExpAvgVal + ",,," + TimeDif + "," + AccumVolInf + ",,," + TimeDif + "," + Deviation + "\n");
                         sw.Flush();
+                        //Update if the pointer is divisible by the update
                         graphUpdate++;
                         if (graphUpdate % GraphPt == 0)
                         {
@@ -1484,8 +1547,8 @@ namespace TECAS_Static_Calcification
                             chart4.Series.SuspendUpdates();
                             graphUpdate = 0;
                         }
-
-                        label13.Text = String.Format("{0:0.0000 V}", AvgVoltage1);
+                        //refresh the labels
+                        label13.Text = String.Format("{0:0.0000 V}", AvgVoltage);
                         label16.Text = String.Format("{0:0.000}", ExpAvgVal);                     
                         label17.Text = String.Format("{0:0.000}", Deviation);
                         label21.Text = String.Format("{0}", (DateTime.Now - ExpStart).Days)+ " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
@@ -1493,7 +1556,7 @@ namespace TECAS_Static_Calcification
                     }));
             }
         }
-
+        //Change Graph
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             switch (comboBox2.SelectedIndex)
@@ -1528,18 +1591,17 @@ namespace TECAS_Static_Calcification
                     break;
             }
         }
-
+        //Pause
         private void button13_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to Pause?", "Pause?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-            {
                 return;
-            }
             Paused = true;
+            //disable timers
             timer4.Enabled = false;
             ExpState = 0;
             aTimer.Enabled = false;
-
+            //Change controls and enable tabs
             button14.Text = "Resume";
             button13.Enabled = false;
             button15.Enabled = false;
@@ -1548,22 +1610,24 @@ namespace TECAS_Static_Calcification
             textBox4.Enabled = false;
             EnableTab(tabPage1, true);
             EnableTab(tabPage2, true);
+            EnableTab(tabPage3, true);
             button6.Enabled = true;
             button7.Enabled = false;
             textBox3.Enabled = true;
-            EnableTab(tabPage3, true);
+            
         }
-
+        //Stop the experiment
         private void button15_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to stop?", "Stop?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-            {
                 return;
-            }
-            serialPort1.Close();
+            //Disable timers
             timer4.Enabled = false;
             aTimer.Enabled = false;
+            //Close COM
+            serialPort1.Close();
             sw.Close();
+            //Change controls
             button13.Enabled = false;
             button15.Enabled = false;
             button14.Enabled = true;
@@ -1572,19 +1636,19 @@ namespace TECAS_Static_Calcification
             comboBox1.Enabled = true;
             checkBox5.Enabled = true;
             comboBox3.Enabled = true;
-
             Paused = false;
             EnableTab(tabPage1, true);
             EnableTab(tabPage2, true);
             EnableTab(tabPage3, true);
+            //Set variables to 0
             ExpTicks = 0;
             ExpAvgVal = 0;
             ExpAccVal = 0;
             Deviation=0;
             VoltoInf=0;
-            AvgVoltage1 = 0;
+            AvgVoltage = 0;
             ExpTicks = 0;
-            dblValueAcc1 = 0;
+            dblValueAcc = 0;
         }
 
         //*********************************************************************************
@@ -1654,7 +1718,7 @@ namespace TECAS_Static_Calcification
         {
             chart4.Series.SuspendUpdates();
         }
-
+        //Enable tab function
         public static void EnableTab(TabPage page, bool enable)
         {
             foreach (Control ctl in page.Controls) ctl.Enabled = enable;
