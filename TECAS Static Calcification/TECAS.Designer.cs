@@ -50,6 +50,11 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.label51 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label50 = new System.Windows.Forms.Label();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.label49 = new System.Windows.Forms.Label();
             this.panel13 = new System.Windows.Forms.Panel();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
@@ -102,6 +107,7 @@
             this.label24 = new System.Windows.Forms.Label();
             this.textBox21 = new System.Windows.Forms.TextBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.button20 = new System.Windows.Forms.Button();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.label1 = new System.Windows.Forms.Label();
             this.panel5 = new System.Windows.Forms.Panel();
@@ -164,11 +170,6 @@
             this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog2 = new System.Windows.Forms.SaveFileDialog();
             this.timer4 = new System.Windows.Forms.Timer(this.components);
-            this.button20 = new System.Windows.Forms.Button();
-            this.label49 = new System.Windows.Forms.Label();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.label50 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.tabPage4.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel11.SuspendLayout();
@@ -211,6 +212,7 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.label51);
             this.tabPage4.Controls.Add(this.comboBox1);
             this.tabPage4.Controls.Add(this.label50);
             this.tabPage4.Controls.Add(this.textBox4);
@@ -229,7 +231,56 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Static pH Experiment";
             this.tabPage4.UseVisualStyleBackColor = true;
-            this.tabPage4.Click += new System.EventHandler(this.tabPage4_Click);
+            // 
+            // label51
+            // 
+            this.label51.AutoSize = true;
+            this.label51.Location = new System.Drawing.Point(589, 166);
+            this.label51.Name = "label51";
+            this.label51.Size = new System.Drawing.Size(80, 13);
+            this.label51.TabIndex = 29;
+            this.label51.Text = "(1 Max Rate)";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.FormatString = "N0";
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"});
+            this.comboBox1.Location = new System.Drawing.Point(598, 182);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(58, 21);
+            this.comboBox1.TabIndex = 28;
+            // 
+            // label50
+            // 
+            this.label50.AutoSize = true;
+            this.label50.Location = new System.Drawing.Point(589, 153);
+            this.label50.Name = "label50";
+            this.label50.Size = new System.Drawing.Size(82, 13);
+            this.label50.TabIndex = 27;
+            this.label50.Text = "Subsampling:";
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(599, 104);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(57, 20);
+            this.textBox4.TabIndex = 5;
+            // 
+            // label49
+            // 
+            this.label49.AutoSize = true;
+            this.label49.Location = new System.Drawing.Point(559, 86);
+            this.label49.Name = "label49";
+            this.label49.Size = new System.Drawing.Size(131, 13);
+            this.label49.TabIndex = 26;
+            this.label49.Text = "Initial Mixing Time [s]:";
             // 
             // panel13
             // 
@@ -558,7 +609,7 @@
             this.chart4.Series.Add(series1);
             this.chart4.Series.Add(series2);
             this.chart4.Series.Add(series3);
-            this.chart4.Size = new System.Drawing.Size(608, 320);
+            this.chart4.Size = new System.Drawing.Size(570, 320);
             this.chart4.TabIndex = 0;
             this.chart4.Text = "chart4";
             // 
@@ -741,6 +792,7 @@
             // 
             // comboBox22
             // 
+            this.comboBox22.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox22.FormattingEnabled = true;
             this.comboBox22.Items.AddRange(new object[] {
             "0",
@@ -833,6 +885,18 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(667, 325);
             this.panel3.TabIndex = 78;
+            // 
+            // button20
+            // 
+            this.button20.Enabled = false;
+            this.button20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button20.Location = new System.Drawing.Point(524, 293);
+            this.button20.Name = "button20";
+            this.button20.Size = new System.Drawing.Size(78, 23);
+            this.button20.TabIndex = 87;
+            this.button20.Text = "Cancel";
+            this.button20.UseVisualStyleBackColor = true;
+            this.button20.Click += new System.EventHandler(this.button20_Click);
             // 
             // chart1
             // 
@@ -1501,53 +1565,8 @@
             // 
             // timer4
             // 
-            this.timer4.Interval = 5;
+            this.timer4.Interval = 1;
             this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
-            // 
-            // button20
-            // 
-            this.button20.Enabled = false;
-            this.button20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button20.Location = new System.Drawing.Point(524, 293);
-            this.button20.Name = "button20";
-            this.button20.Size = new System.Drawing.Size(78, 23);
-            this.button20.TabIndex = 87;
-            this.button20.Text = "Cancel";
-            this.button20.UseVisualStyleBackColor = true;
-            this.button20.Click += new System.EventHandler(this.button20_Click);
-            // 
-            // label49
-            // 
-            this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(559, 86);
-            this.label49.Name = "label49";
-            this.label49.Size = new System.Drawing.Size(131, 13);
-            this.label49.TabIndex = 26;
-            this.label49.Text = "Initial Mixing Time [s]:";
-            // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(625, 104);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(57, 20);
-            this.textBox4.TabIndex = 5;
-            // 
-            // label50
-            // 
-            this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(590, 137);
-            this.label50.Name = "label50";
-            this.label50.Size = new System.Drawing.Size(93, 13);
-            this.label50.TabIndex = 27;
-            this.label50.Text = "Sampling Rate:";
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(625, 153);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(58, 21);
-            this.comboBox1.TabIndex = 28;
             // 
             // TECAS
             // 
@@ -1725,6 +1744,7 @@
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label50;
+        private System.Windows.Forms.Label label51;
 
     }
 }

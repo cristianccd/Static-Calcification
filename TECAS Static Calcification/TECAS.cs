@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Timers;
 
 namespace TECAS_Static_Calcification
 {
@@ -17,7 +18,7 @@ namespace TECAS_Static_Calcification
         //***************************
         //pH Calibration
         DateTime pHstartTime;
-        double pHCalSlope = 0, pHCalIntercept = 0, pHR2 = 0, SumpHCal = 0, pHAccumTime = 0, pHTicks = 0, pHAvgVal = 0;
+        double pHCalSlope = 0, pHCalIntercept = 0, pHR2 = 0, SumpHCal = 0, pHTicks = 0, pHAvgVal = 0;
         int pHSampleNo = 0, pHCalState = 0;
         bool pHCal = false;
 
@@ -29,7 +30,6 @@ namespace TECAS_Static_Calcification
 
         //Syringe Calibration
         double SyrR2=0, SyrCalIntercept=0, SyrCalSlope=0;
-        bool SyrCal = false;
         int SampleNo;
         public static int State;
         string _Reading, _SampleUnits, _LoadCal;
@@ -45,12 +45,13 @@ namespace TECAS_Static_Calcification
         int dummyInt = 0;
 
         //Experiment
-        double ExpTicks = 0, ExpAvgVal = 0, ExpAccVal = 0, ExpAvgSyr = 0, ExpCurrVol=0, Deviation=0, VoltoInf=0, AccVol=0;
+        double ExpTicks = 0, ExpAvgVal = 0, ExpAccVal = 0, Deviation=0, VoltoInf=0, TimeDif=0;
         DateTime ExpStart, ExpWaitTime;
-        bool InfStarted = false, InfFinished = false, ExpWait=false;
+        bool InfStarted = false;
         bool Paused = false;
-        int ExpState = 0;
+        int ExpState = 0, SubSampling = 0;
         double AccumVolInf = 0;
+        public static System.Timers.Timer aTimer;
 
         //***************************
 
@@ -99,7 +100,7 @@ namespace TECAS_Static_Calcification
                     return false;
                 }
             }
-            catch (Exception h)
+            catch (Exception)
             {
                 MessageBox.Show("Time format not valid", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
@@ -121,7 +122,7 @@ namespace TECAS_Static_Calcification
                         return false;
                     }
                 }
-                catch (Exception h)
+                catch (Exception )
                 {
                     MessageBox.Show("pH format not valid", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
@@ -143,7 +144,7 @@ namespace TECAS_Static_Calcification
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 15, 16);//first 4 FIO analog b0000000000001111
                     LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN, 0, 0, 0, 0);//Request AIN0
                 }
-                catch (LabJackUDException h)
+                catch (LabJackUDException)
                 {
                     MessageBox.Show("Error opening DAQ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -271,7 +272,7 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException h)
+                catch (LabJackUDException)
                 {
                     MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -361,7 +362,6 @@ namespace TECAS_Static_Calcification
             pHCalIntercept = 0;
             pHR2 = 0;
             SumpHCal = 0;
-            pHAccumTime = 0;
             pHTicks = 0;
             pHAvgVal = 0;
             pHSampleNo = 0;
@@ -387,7 +387,7 @@ namespace TECAS_Static_Calcification
                 {
                     Convert.ToDouble(textBox3.Text);
                 }
-                catch (Exception h)
+                catch (Exception)
                 {
                     MessageBox.Show("Invalid Set Point Format!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -406,7 +406,7 @@ namespace TECAS_Static_Calcification
                 LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 15, 16);//first 4 FIO analog b0000000000001111
                 LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN, 0, 0, 0, 0);//Request AIN0
             }
-            catch (LabJackUDException h)
+            catch (LabJackUDException)
             {
                 MessageBox.Show("Error opening DAQ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -437,7 +437,7 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException h)
+                catch (LabJackUDException)
                 {
                     MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -722,7 +722,6 @@ namespace TECAS_Static_Calcification
                     else
                         label29.Text = "y=" + String.Format("{0:0.0000}", SyrCalSlope) + " x" + String.Format("{0:0.0000}", SyrCalIntercept);
                     serialPort1.Close();
-                    SyrCal = true;
                     checkBox1.Checked = true;
                     panel5.Visible = true;
                     dataGridView1.Enabled = true;
@@ -789,7 +788,6 @@ namespace TECAS_Static_Calcification
                     panel5.Visible = true;
                     chart1.Series["Series2"].Points.AddXY(Convert.ToDouble(_LoadCal.Split('#')[3]), Convert.ToDouble(_LoadCal.Split('#')[4]));
                     chart1.Series["Series2"].Points.AddXY(Convert.ToDouble(_LoadCal.Split('#')[5]), Convert.ToDouble(_LoadCal.Split('#')[6]));
-                    SyrCal = true;
                     checkBox1.Checked = true;
                 }
             }
@@ -933,8 +931,6 @@ namespace TECAS_Static_Calcification
             }
             serialPort1.Write("STP\r\n");
             System.Threading.Thread.Sleep(20);
-            /*serialPort1.Write("DIA " + textBox21.Text + "\r\n");
-            System.Threading.Thread.Sleep(20);*/
             serialPort1.Write("DIR WDR\r\n");
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("RAT 500 MH\r\n"); //Rate fixed
@@ -973,7 +969,7 @@ namespace TECAS_Static_Calcification
             {
                 Convert.ToDouble(textBox2.Text);
             }
-            catch (Exception h)
+            catch (Exception)
             {
                 MessageBox.Show("Setpoint is not in a valid format","Error!",MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
@@ -983,6 +979,26 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show("Calibrations not done, please load the calibration files!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+            try
+            {
+                Convert.ToDouble(textBox4.Text);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Mixing time is not in a valid format", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            if(Convert.ToDouble(textBox4.Text) < 0 || Convert.ToDouble(textBox4.Text) > 60)
+            {
+                MessageBox.Show("Please choose a mixing time between 0 and 60 seconds!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            if (comboBox1.SelectedIndex==-1)
+            {
+                MessageBox.Show("Please choose a sampling rate!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
             return true;
         }
         private void button14_Click(object sender, EventArgs e)
@@ -1034,7 +1050,7 @@ namespace TECAS_Static_Calcification
                 LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 15, 16);//first 4 FIO analog b0000000000001111
                 LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN, 0, 0, 0, 0);//Request AIN0
             }
-            catch (LabJackUDException h)
+            catch (LabJackUDException)
             {
                 MessageBox.Show("Error opening DAQ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 serialPort1.Close();
@@ -1052,6 +1068,9 @@ namespace TECAS_Static_Calcification
                 series.Points.Clear();
             ExpState = 0;
             textBox2.Enabled = false;
+            textBox4.Enabled = false;
+            comboBox1.Enabled = false;
+            SubSampling = Convert.ToInt16(comboBox1.SelectedItem) + 1;
             timer4.Enabled = true;
         }
 
@@ -1059,11 +1078,7 @@ namespace TECAS_Static_Calcification
         {
             timer4.Enabled = false;
             if (Paused)
-            {
-                timer4.Enabled = false;
                 return;
-            }
-
             bool requestedExit = false;
             while (!requestedExit)
             {
@@ -1072,7 +1087,7 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException h)
+                catch (LabJackUDException)
                 {
                     MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -1090,13 +1105,19 @@ namespace TECAS_Static_Calcification
                             ExpAvgVal = ExpAccVal / 30;
                             label13.Text = String.Format("{0:0.000000000 V}", dblValue);
                             label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);
-                            chart4.Series["Series1"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, ExpAvgVal);
+                            //******************************************************
                             Deviation = Convert.ToDouble(textBox2.Text) - ExpAvgVal;
-                            chart4.Series["Series2"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, AccumVolInf);
+                            //******************************************************                        
                             label17.Text = String.Format("{0:0.0000000}", Deviation);
                             label21.Text = String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
-                            chart4.Series["Series3"].Points.AddXY((DateTime.Now - ExpStart).TotalSeconds, Deviation);
+                            //******************************************************
                             label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
+                            //Write Graphs
+                            chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
+                            chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
+                            chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
+                            TimeDif = (DateTime.Now - ExpStart).TotalSeconds;
+
                             ExpTicks = 0;
                             ExpAccVal = 0;
                             if (Deviation > 0.001 && InfStarted == false)
@@ -1191,10 +1212,13 @@ namespace TECAS_Static_Calcification
         {
             serialPort1.Close();
             timer4.Enabled = false;
+            aTimer.Enabled = false;
             button13.Enabled = false;
             button15.Enabled = false;
             button14.Enabled = true;
             textBox2.Enabled = true;
+            textBox4.Enabled = true;
+            comboBox1.Enabled = true;
             //Export Data
             string _FirstLine = "PH,X,Y,,VOLUME,X,Y,,DEVIATION,X,Y\n";
             string[] Content = new string[chart4.Series["Series1"].Points.Count];
@@ -1206,17 +1230,17 @@ namespace TECAS_Static_Calcification
                 StreamWriter sw = new StreamWriter(Path+@"\"+DateTime.Now.ToString("yyyy-MM-dd HHmmss")+".csv");
                 sw.Write(_FirstLine);
                 for (int i = 0; i < chart4.Series["Series1"].Points.Count; i++)
-                    sw.Write(","+chart4.Series["Series1"].Points[i].XValue + "," + chart4.Series["Series1"].Points[i].YValues[0] + ",,," + chart4.Series["Series2"].Points[i].XValue + "," + chart4.Series["Series2"].Points[i].YValues[0] + ",,," + chart4.Series["Series3"].Points[i].XValue + "," + chart4.Series["Series3"].Points[i].YValues[0] + "\n");
+                {
+                    if (i % SubSampling == 0)
+                        sw.Write("," + chart4.Series["Series1"].Points[i].XValue + "," + chart4.Series["Series1"].Points[i].YValues[0] + ",,," + chart4.Series["Series2"].Points[i].XValue + "," + chart4.Series["Series2"].Points[i].YValues[0] + ",,," + chart4.Series["Series3"].Points[i].XValue + "," + chart4.Series["Series3"].Points[i].YValues[0] + "\n");
+                }
                 sw.Close();
                 Paused = false;
                 ExpTicks = 0;
                 ExpAvgVal = 0;
                 ExpAccVal = 0;
-                ExpAvgSyr = 0;
-                ExpCurrVol=0;
                 Deviation=0;
                 VoltoInf=0;
-                AccVol=0;
             }
             catch (Exception ex)
             {
@@ -1237,11 +1261,6 @@ namespace TECAS_Static_Calcification
             }
             if (serialPort1.IsOpen)
                 serialPort1.Close();
-        }
-
-        private void tabPage4_Click(object sender, EventArgs e)
-        {
-
         }
 
         //*********************************************************************************

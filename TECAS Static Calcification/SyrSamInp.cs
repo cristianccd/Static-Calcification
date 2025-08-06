@@ -23,9 +23,9 @@ namespace TECAS_Static_Calcification
             {
                 TECAS.SampleVolume = Convert.ToDouble(textBox1.Text);
             }
-            catch (Exception h)
+            catch (Exception)
             {
-                MessageBox.Show("Please provide numbers only!");
+                MessageBox.Show("Please provide numbers only!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             TECAS.State = 4;
