@@ -20,13 +20,13 @@ namespace TECAS_Static_Calcification
         DateTime pHstartTime;
         double pHCalSlope = 0, pHCalIntercept = 0, pHR2 = 0, SumpHCal = 0, pHTicks = 0, pHAvgVal = 0;
         int pHSampleNo = 0, pHCalState = 0;
-        bool pHCal = false;
 
         //pH measurement
         double pHMeasureAvg = 0, pHMeasureTicks = 0, pHMeasureVal = 0, pHMeasureAcc=0;
         DateTime pHMeasureStart;
         DialogResult pHQuestSample;
         int Waitlbltick = 0;
+        bool pHCal;
 
         //Syringe Calibration
         double SyrR2=0, SyrCalIntercept=0, SyrCalSlope=0;
@@ -49,7 +49,7 @@ namespace TECAS_Static_Calcification
         double ExpTicks = 0, ExpAvgVal = 0, ExpAccVal = 0, Deviation=0, VoltoInf=0, TimeDif=0;
         DateTime ExpStart, ExpWaitTime;
         bool InfStarted = false, TimeMix=false;
-        bool Paused = false;
+        bool Paused = false, PositiveDev = false;
         int ExpState = 0, GraphPt=1;
         double AccumVolInf = 0, SubSampling=0, WdrVol=1000;
         static private System.Timers.Timer aTimer;
@@ -156,7 +156,7 @@ namespace TECAS_Static_Calcification
                 }
                 catch (LabJackUDException h)
                 {
-                    MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error opening DAQ. "+h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 foreach (var series in chart3.Series)
@@ -314,9 +314,9 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException h)
+                catch (LabJackUDException)
                 {
-                    MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                     label10.Text = String.Format("{0:0.0000}", dblValue);
@@ -329,7 +329,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -459,7 +459,7 @@ namespace TECAS_Static_Calcification
             }
             catch (LabJackUDException h)
             {
-                MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error opening DAQ. "+h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             if (!checkBox2.Checked)
@@ -489,9 +489,9 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException h)
+                catch (LabJackUDException)
                 {
-                    MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
@@ -528,7 +528,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             timer2.Enabled = true;
@@ -1130,6 +1130,11 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show("Please choose a sampling rate!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+            if (comboBox3.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please choose a type of deviation!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
 
             return true;
         }
@@ -1257,7 +1262,7 @@ namespace TECAS_Static_Calcification
             }
             catch (LabJackUDException h)
             {
-                MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error opening DAQ. "+h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 serialPort1.Close();
                 return;
             }
@@ -1326,9 +1331,9 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue1, ref dummyInt, ref dummyDouble1);
                 }
-                catch (LabJackUDException h)
+                catch (LabJackUDException)
                 {
-                    MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
@@ -1353,7 +1358,33 @@ namespace TECAS_Static_Calcification
                                 ExpState = 0;
                                 break;
                             }
-                            if (Deviation < 0 && InfStarted == false && TimeMix==false)
+                            if (comboBox3.SelectedIndex == 0) // Positive Deviation Infusion
+                            {
+                                if (Deviation > 0 && InfStarted == false && TimeMix == false)
+                                {
+                                    ExpState = 2;
+                                    serialPort1.Write("CLD INF\r\n");
+                                    System.Threading.Thread.Sleep(20);
+                                    serialPort1.Write("CLD WDR\r\n");
+                                    System.Threading.Thread.Sleep(20);
+                                    break;
+                                }
+                            }
+
+                            else //Negative Deviation
+                            {
+                                if (Deviation < 0 && InfStarted == false && TimeMix == false)
+                                {
+                                    ExpState = 2;
+                                    serialPort1.Write("CLD INF\r\n");
+                                    System.Threading.Thread.Sleep(20);
+                                    serialPort1.Write("CLD WDR\r\n");
+                                    System.Threading.Thread.Sleep(20);
+                                    break;
+                                }
+                            } 
+
+                            /*if (Deviation < 0 && InfStarted == false && TimeMix==false)
                             {
                                 ExpState = 2;
                                 serialPort1.Write("CLD INF\r\n");
@@ -1361,7 +1392,8 @@ namespace TECAS_Static_Calcification
                                 serialPort1.Write("CLD WDR\r\n");
                                 System.Threading.Thread.Sleep(20);
                                 break;
-                            }
+                            }*/
+                            
                             if (InfStarted)
                             {
                                 ExpState = 3;
@@ -1379,7 +1411,7 @@ namespace TECAS_Static_Calcification
                         case 2:
                             InfStarted = true;
                             ExpWaitTime=DateTime.Now;
-                            VoltoInf = (((-Deviation) * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
+                            VoltoInf = ((Math.Abs(Deviation) * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf < 20)
                                 VoltoInf = (20 - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf > 50)
@@ -1426,7 +1458,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show(h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             timer4.Enabled = true;
