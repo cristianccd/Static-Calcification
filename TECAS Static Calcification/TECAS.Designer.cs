@@ -170,6 +170,7 @@
             this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.label52 = new System.Windows.Forms.Label();
             this.tabPage4.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel11.SuspendLayout();
@@ -240,6 +241,7 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.label52);
             this.tabPage4.Controls.Add(this.label51);
             this.tabPage4.Controls.Add(this.comboBox1);
             this.tabPage4.Controls.Add(this.label50);
@@ -1240,6 +1242,7 @@
             // 
             // button7
             // 
+            this.button7.Enabled = false;
             this.button7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.button7.Location = new System.Drawing.Point(13, 41);
             this.button7.Name = "button7";
@@ -1573,6 +1576,15 @@
             this.tabControl1.Size = new System.Drawing.Size(698, 456);
             this.tabControl1.TabIndex = 0;
             // 
+            // label52
+            // 
+            this.label52.AutoSize = true;
+            this.label52.Location = new System.Drawing.Point(615, 221);
+            this.label52.Name = "label52";
+            this.label52.Size = new System.Drawing.Size(48, 13);
+            this.label52.TabIndex = 30;
+            this.label52.Text = "label52";
+            // 
             // TECAS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1750,6 +1762,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column5;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
         private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.Label label52;
 
     }
 }
