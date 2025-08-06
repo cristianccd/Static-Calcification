@@ -146,8 +146,8 @@ namespace TECAS_Static_Calcification
                     if (u3 == null)
                         u3 = new U3(LJUD.CONNECTION.USB, "1", true); // Connection through USB
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
-                    LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 15, 16);//first 4 FIO analog b0000000000001111
-                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN, 0, 0, 0, 0);//Request AIN0 it can also be 0, 0, 32, 0 for better resolution in other port
+                    LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4 it can also be 0, 0, 32, 0 for better resolution in other port
                 }
                 catch (LabJackUDException)
                 {
@@ -245,21 +245,19 @@ namespace TECAS_Static_Calcification
                     MessageBox.Show("Finished, please check the results...", "Finished", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     //auxiliar variables to obtain results
                     double a = 0, b = 0, c = 0, d = 0, f = 0;
-
-
                     for (int i = 0; i < dataGridView2.RowCount; i++)
                     {
                         //sumxy
-                        a= a + Convert.ToDouble(dataGridView2[0, i].Value) * Convert.ToDouble(dataGridView2[1, i].Value);
+                        a= a + Convert.ToDouble(dataGridView2[1, i].Value) * Convert.ToDouble(dataGridView2[0, i].Value);
                         //sumx
-                        b= b + Convert.ToDouble(dataGridView2[1, i].Value);
+                        b= b + Convert.ToDouble(dataGridView2[0, i].Value);
                         //sumy
-                        c= c +Convert.ToDouble(dataGridView2[0, i].Value);
+                        c= c +Convert.ToDouble(dataGridView2[1, i].Value);
                         //sumx2
-                        d= d + Math.Pow(Convert.ToDouble(dataGridView2[1, i].Value), 2);
+                        d= d + Math.Pow(Convert.ToDouble(dataGridView2[0, i].Value), 2);
                         //sumy2
-                        f= f + Math.Pow(Convert.ToDouble(dataGridView2[0, i].Value),2);
-                        chart3.Series["Series2"].Points.AddXY(Convert.ToDouble(dataGridView2[1,i].Value),dataGridView2[0, i].Value);
+                        f= f + Math.Pow(Convert.ToDouble(dataGridView2[1, i].Value),2);
+                        chart3.Series["Series2"].Points.AddXY(Convert.ToDouble(dataGridView2[0,i].Value),dataGridView2[1, i].Value);
                     }
                     /*R2 = ((Nxysum - xsumysum)^2)/((Nx^2sum - xsum*xsum)*(Ny^2sum - ysum*ysum))*/
                     pHR2=(Math.Pow((dataGridView2.RowCount*a-b*c),2))/((dataGridView2.RowCount*d-Math.Pow(b,2))*(dataGridView2.RowCount*f-Math.Pow(c,2)));
@@ -272,10 +270,8 @@ namespace TECAS_Static_Calcification
                         label6.Text = "y=" + String.Format("{0:0.0000}", pHCalSlope) + " x" + String.Format("{0:0.0000}", pHCalIntercept);
                     label5.Text = "R =  " + String.Format("{0:0.0000}", pHR2);
                     //Graph
-                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[1,0].Value),pHCalSlope*Convert.ToDouble(dataGridView2[1,0].Value)+pHCalIntercept);
-                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[1, dataGridView2.RowCount-1].Value), pHCalSlope * Convert.ToDouble(dataGridView2[1, dataGridView2.RowCount - 1].Value) + pHCalIntercept);
-
-
+                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[0,0].Value),pHCalSlope*Convert.ToDouble(dataGridView2[0,0].Value)+pHCalIntercept);
+                    chart3.Series["Series1"].Points.AddXY(Convert.ToDouble(dataGridView2[0, dataGridView2.RowCount-1].Value), pHCalSlope * Convert.ToDouble(dataGridView2[0, dataGridView2.RowCount - 1].Value) + pHCalIntercept);
                     panel1.Visible = true;
                     button8.Enabled = true;
                     if (dataGridView2.RowCount <= 2)
@@ -307,7 +303,7 @@ namespace TECAS_Static_Calcification
                 {
                     MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                if (ioType == LJUD.IO.GET_AIN)
+                if (ioType == LJUD.IO.GET_AIN_DIFF)
                     label10.Text = String.Format("{0:0.00000}", dblValue);
                 try
                 {
@@ -436,8 +432,8 @@ namespace TECAS_Static_Calcification
                 if (u3 == null)
                     u3 = new U3(LJUD.CONNECTION.USB, "1", true); // Connection through USB
                 LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
-                LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 15, 16);//first 4 FIO analog b0000000000001111
-                LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN, 0, 0, 0, 0);//Request AIN0
+                LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 4 FIO analog b0000000000011111
+                LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
             }
             catch (LabJackUDException)
             {
@@ -474,10 +470,10 @@ namespace TECAS_Static_Calcification
                 {
                     MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                if (ioType == LJUD.IO.GET_AIN)
+                if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
-                    pHMeasureVal = pHCalSlope * dblValue + pHCalIntercept; //(dblValue - pHCalIntercept) / pHCalSlope;//
-                    pHMeasureAvg += pHMeasureVal;
+                    pHMeasureVal = (dblValue - pHCalIntercept) / pHCalSlope;//pHCalSlope * dblValue + pHCalIntercept;
+                    pHMeasureAvg = pHMeasureAvg + pHMeasureVal;
                     label42.Text = String.Format("{0:0.000000000 V}", dblValue);
                     pHMeasureTicks++;
                     if (pHMeasureTicks >= 30)//average between N samples
@@ -1182,8 +1178,8 @@ namespace TECAS_Static_Calcification
                 if (u3 == null)
                     u3 = new U3(LJUD.CONNECTION.USB, "1", true); // Connection through USB
                 LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
-                LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 15, 16);//first 4 FIO analog b0000000000001111
-                LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN, 0, 0, 0, 0);//Request AIN0
+                LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 4 FIO analog b0000000000001111
+                LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
             }
             catch (LabJackUDException)
             {
@@ -1248,18 +1244,18 @@ namespace TECAS_Static_Calcification
                 {
                     MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                if (ioType == LJUD.IO.GET_AIN)
+                if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
                     switch (ExpState)
                     { 
                         case 0:
                             ExpTicks++;
-                            ExpAccVal += (dblValue * pHCalSlope + pHCalIntercept);//ExpAccVal + (dblValue - pHCalIntercept) / pHCalSlope;
-                            if (ExpTicks >= 30)
+                            ExpAccVal = ExpAccVal + (dblValue - pHCalIntercept) / pHCalSlope;//(dblValue * pHCalSlope + pHCalIntercept);
+                            if (ExpTicks >= 10)
                                 ExpState = 1;
                             break;
                         case 1:
-                            ExpAvgVal = ExpAccVal / 30;
+                            ExpAvgVal = ExpAccVal / 10;
                             Deviation = Convert.ToDouble(textBox2.Text) - ExpAvgVal;
                             ExpTicks = 0;
                             ExpAccVal = 0;
