@@ -1322,8 +1322,13 @@ namespace TECAS_Static_Calcification
                             Deviation = ExpAvgVal - Convert.ToDouble(textBox2.Text);
                             ExpTicks = 0;
                             ExpAccVal = 0;
-                            dblValueAcc1 = 0;                     
-                            if (Deviation < 0.001 && InfStarted == false && TimeMix==false)
+                            dblValueAcc1 = 0;
+                            if (DateTime.Now.AddSeconds(0 - Convert.ToDouble(textBox4.Text)) < ExpStart) //Incubation time
+                            {
+                                ExpState = 0;
+                                break;
+                            }
+                            if (Deviation < 0 && InfStarted == false && TimeMix==false)
                             {
                                 ExpState = 2;
                                 serialPort1.Write("CLD INF\r\n");
@@ -1476,6 +1481,7 @@ namespace TECAS_Static_Calcification
             Paused = true;
             //
             timer4.Enabled = false;
+            ExpState = 0;
             aTimer.Enabled = false;
 
             button14.Text = "Resume";
