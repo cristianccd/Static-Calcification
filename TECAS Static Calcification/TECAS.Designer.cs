@@ -153,6 +153,7 @@
             this.button7 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.button21 = new System.Windows.Forms.Button();
             this.panel18 = new System.Windows.Forms.Panel();
             this.button19 = new System.Windows.Forms.Button();
             this.button10 = new System.Windows.Forms.Button();
@@ -183,7 +184,8 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.button21 = new System.Windows.Forms.Button();
+            this.helpProvider1 = new System.Windows.Forms.HelpProvider();
+            this.button22 = new System.Windows.Forms.Button();
             this.tabPage4.SuspendLayout();
             this.panel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart4)).BeginInit();
@@ -275,7 +277,7 @@
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage4.Size = new System.Drawing.Size(690, 430);
             this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "Static pH Experiment";
+            this.tabPage4.Text = "CSR Experiment";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // panel10
@@ -369,9 +371,9 @@
             this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label14.Location = new System.Drawing.Point(2, 10);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(78, 13);
+            this.label14.Size = new System.Drawing.Size(88, 13);
             this.label14.TabIndex = 4;
-            this.label14.Text = "pH Setpoint:";
+            this.label14.Text = "PPM Setpoint:";
             // 
             // textBox2
             // 
@@ -382,8 +384,10 @@
             // 
             // chart4
             // 
+            chartArea1.AxisX.MinorTickMark.Enabled = true;
             chartArea1.AxisX.Title = "Time [s]";
-            chartArea1.AxisY.Title = "pH";
+            chartArea1.AxisY.MinorTickMark.Enabled = true;
+            chartArea1.AxisY.Title = "PPM";
             chartArea1.Name = "ChartArea1";
             this.chart4.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
@@ -617,7 +621,7 @@
             // label35
             // 
             this.label35.AutoSize = true;
-            this.label35.Location = new System.Drawing.Point(346, 31);
+            this.label35.Location = new System.Drawing.Point(328, 31);
             this.label35.Name = "label35";
             this.label35.Size = new System.Drawing.Size(32, 13);
             this.label35.TabIndex = 19;
@@ -627,7 +631,7 @@
             // 
             this.label36.AutoSize = true;
             this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label36.Location = new System.Drawing.Point(281, 31);
+            this.label36.Location = new System.Drawing.Point(252, 30);
             this.label36.Name = "label36";
             this.label36.Size = new System.Drawing.Size(69, 13);
             this.label36.TabIndex = 18;
@@ -636,7 +640,7 @@
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(340, 7);
+            this.label23.Location = new System.Drawing.Point(327, 5);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(32, 13);
             this.label23.TabIndex = 17;
@@ -646,11 +650,11 @@
             // 
             this.label34.AutoSize = true;
             this.label34.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label34.Location = new System.Drawing.Point(282, 7);
+            this.label34.Location = new System.Drawing.Point(245, 5);
             this.label34.Name = "label34";
-            this.label34.Size = new System.Drawing.Size(63, 13);
+            this.label34.Size = new System.Drawing.Size(76, 13);
             this.label34.TabIndex = 16;
-            this.label34.Text = "pH Slope:";
+            this.label34.Text = "Elec. Slope:";
             // 
             // label21
             // 
@@ -676,7 +680,7 @@
             this.label19.AutoSize = true;
             this.label19.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label19.ForeColor = System.Drawing.Color.Red;
-            this.label19.Location = new System.Drawing.Point(199, 7);
+            this.label19.Location = new System.Drawing.Point(201, 4);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(36, 16);
             this.label19.TabIndex = 10;
@@ -699,7 +703,7 @@
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(46, 13);
             this.label17.TabIndex = 8;
-            this.label17.Text = "0.0000";
+            this.label17.Text = "0000.0";
             // 
             // label18
             // 
@@ -716,11 +720,11 @@
             this.label16.AutoSize = true;
             this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label16.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.label16.Location = new System.Drawing.Point(23, 5);
+            this.label16.Location = new System.Drawing.Point(35, 5);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(44, 16);
+            this.label16.Size = new System.Drawing.Size(52, 16);
             this.label16.TabIndex = 6;
-            this.label16.Text = "0.000";
+            this.label16.Text = "0000.0";
             // 
             // label15
             // 
@@ -728,9 +732,9 @@
             this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label15.Location = new System.Drawing.Point(1, 7);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(27, 13);
+            this.label15.Size = new System.Drawing.Size(41, 13);
             this.label15.TabIndex = 5;
-            this.label15.Text = "pH:";
+            this.label15.Text = "PPM: ";
             // 
             // comboBox2
             // 
@@ -1227,7 +1231,7 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(690, 430);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "pH Measurement";
+            this.tabPage2.Text = "Measurement";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // panel19
@@ -1319,9 +1323,9 @@
             this.label37.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label37.Location = new System.Drawing.Point(73, 40);
             this.label37.Name = "label37";
-            this.label37.Size = new System.Drawing.Size(39, 16);
+            this.label37.Size = new System.Drawing.Size(46, 16);
             this.label37.TabIndex = 6;
-            this.label37.Text = "0.000";
+            this.label37.Text = "0000.0";
             // 
             // label38
             // 
@@ -1337,11 +1341,11 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(42, 7);
+            this.label3.Location = new System.Drawing.Point(61, 7);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(87, 31);
+            this.label3.Size = new System.Drawing.Size(103, 31);
             this.label3.TabIndex = 2;
-            this.label3.Text = "0.000";
+            this.label3.Text = "0000.0";
             // 
             // label2
             // 
@@ -1349,9 +1353,9 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(6, 14);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(43, 24);
+            this.label2.Size = new System.Drawing.Size(59, 24);
             this.label2.TabIndex = 1;
-            this.label2.Text = "pH:";
+            this.label2.Text = "PPM:";
             // 
             // panel7
             // 
@@ -1400,8 +1404,18 @@
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(690, 430);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "pH Calibration";
+            this.tabPage1.Text = "Electrode Calibration";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // button21
+            // 
+            this.button21.Location = new System.Drawing.Point(611, 398);
+            this.button21.Name = "button21";
+            this.button21.Size = new System.Drawing.Size(73, 23);
+            this.button21.TabIndex = 102;
+            this.button21.Text = "Disable WD";
+            this.button21.UseVisualStyleBackColor = true;
+            this.button21.Click += new System.EventHandler(this.button21_Click);
             // 
             // panel18
             // 
@@ -1449,7 +1463,7 @@
             this.label48.AutoSize = true;
             this.label48.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(161)));
             this.label48.ForeColor = System.Drawing.Color.DarkBlue;
-            this.label48.Location = new System.Drawing.Point(6, 50);
+            this.label48.Location = new System.Drawing.Point(3, 49);
             this.label48.Name = "label48";
             this.label48.Size = new System.Drawing.Size(332, 55);
             this.label48.TabIndex = 98;
@@ -1460,10 +1474,9 @@
             // 
             chartArea4.AxisX.LabelStyle.Interval = 0.5D;
             chartArea4.AxisX.MajorGrid.Interval = 1D;
-            chartArea4.AxisX.Maximum = 14D;
             chartArea4.AxisX.Minimum = 0D;
             chartArea4.AxisX.MinorGrid.Interval = 0.5D;
-            chartArea4.AxisX.Title = "pH";
+            chartArea4.AxisX.Title = "PPM";
             chartArea4.AxisY.LabelStyle.Interval = 0D;
             chartArea4.AxisY.Minimum = 0D;
             chartArea4.AxisY.Title = "Measured V [V]";
@@ -1539,7 +1552,7 @@
             // 
             // Column5
             // 
-            this.Column5.HeaderText = "Standard pH";
+            this.Column5.HeaderText = "Concentration [ppm]";
             this.Column5.Name = "Column5";
             // 
             // Column6
@@ -1729,28 +1742,29 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(114, 17);
             this.toolStripStatusLabel1.Text = "No reported issues...";
             // 
-            // button21
+            // button22
             // 
-            this.button21.Location = new System.Drawing.Point(611, 398);
-            this.button21.Name = "button21";
-            this.button21.Size = new System.Drawing.Size(73, 23);
-            this.button21.TabIndex = 102;
-            this.button21.Text = "Disable WD";
-            this.button21.UseVisualStyleBackColor = true;
-            this.button21.Click += new System.EventHandler(this.button21_Click);
+            this.button22.Image = ((System.Drawing.Image)(resources.GetObject("button22.Image")));
+            this.button22.Location = new System.Drawing.Point(676, 1);
+            this.button22.Name = "button22";
+            this.button22.Size = new System.Drawing.Size(30, 30);
+            this.button22.TabIndex = 104;
+            this.button22.UseVisualStyleBackColor = true;
+            this.button22.Click += new System.EventHandler(this.button22_Click);
             // 
             // TECAS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(713, 502);
+            this.Controls.Add(this.button22);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(729, 540);
             this.MinimumSize = new System.Drawing.Size(729, 540);
             this.Name = "TECAS";
-            this.Text = "TECAS CSR V3.2";
+            this.Text = "TECAS CSR V4.0";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TECAS_FormClosing);
             this.Load += new System.EventHandler(this.TECAS_Load);
             this.tabPage4.ResumeLayout(false);
@@ -1924,8 +1938,6 @@
         private System.Windows.Forms.Button button9;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.DataGridView dataGridView2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
         private System.Windows.Forms.Panel panel15;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label11;
@@ -1942,6 +1954,10 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.Button button21;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
+        private System.Windows.Forms.HelpProvider helpProvider1;
+        private System.Windows.Forms.Button button22;
 
     }
 }

@@ -52,13 +52,15 @@ namespace TECAS_Static_Calcification
         double AccumVolInf = 0, SubSampling=0, WdrVol=1000, CalcVol=0, ReadVol=0;
         static private System.Timers.Timer aTimer;
         StreamWriter sw, swexp, Error_SW;
-        int Inf_Ticks = 0;
 
         bool newErrorLog = true;
 
         //Zoom
         double xMin, yMin, xMax, yMax;
         double posXStart, posYStart, posXFinish, posYFinish;
+
+        //Help
+        FormHelp HelpForm;
 
         //***************************
 
@@ -153,8 +155,8 @@ namespace TECAS_Static_Calcification
                     if (u3 == null)
                         u3 = new U3(LJUD.CONNECTION.USB, "1", true); // Connection through USB
                     LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
-                    LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
-                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
+                    LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 63, 16);//first 6 FIO analog b0000000000111111
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 5, 0);//Request FIO4 - 5
                     LJUD.GoOne(u3.ljhandle);
                 }
                 catch (LabJackUDException h)
@@ -735,7 +737,7 @@ namespace TECAS_Static_Calcification
         {
             if (newErrorLog)
             {
-                string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\Calcification Experiments";
+                string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\CSR Experiments";
                 if (!System.IO.Directory.Exists(Path))
                     System.IO.Directory.CreateDirectory(Path);
                 Error_SW = new StreamWriter(Path + @"\ErrorLog_" + DateTime.Now.ToString("yyyy-MM-dd HHmmss") + ".txt");
@@ -1263,7 +1265,6 @@ namespace TECAS_Static_Calcification
                     ExpState = 0;
                     ExpTicks = 0;
                     ExpAccVal = 0;
-                    Inf_Ticks = 0;
                     //Set the controls to disable and the tabs
                     textBox2.Enabled = false;
                     textBox5.Enabled = false;
@@ -1409,7 +1410,7 @@ namespace TECAS_Static_Calcification
             //Start Export Data
             string _FirstLine = "PH Setp.:"+ textBox2.Text + "Max. Vol [ul]:" + textBox5.Text + "Mix Time [s]:" + textBox6.Text +",Time[s],Value,,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value,\n";
             string[] Content = new string[chart4.Series["Series1"].Points.Count];
-            string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ @"\Calcification Experiments";
+            string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ @"\CSR Experiments";
             try
             {
                 if (!System.IO.Directory.Exists(Path))
@@ -1561,8 +1562,6 @@ namespace TECAS_Static_Calcification
                             serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");
                             //Accum the vol
                             AccumVolInf += CalcVol;
-                            //Increase the ticks
-                            Inf_Ticks++;
                             System.Threading.Thread.Sleep(20);
                             //Set the timer to now to check if some secs passed
                             ExpWaitTime = DateTime.Now;
@@ -1591,12 +1590,7 @@ namespace TECAS_Static_Calcification
                                         serialPort1.Write("DIR WDR\r\n");
                                         System.Threading.Thread.Sleep(30);
                                         //Write to the syringe
-
-                                        //BUG********************************
-                                        //serialPort1.Write("VOL " + String.Format("{0:0000}", (1000 - SyrCalIntercept) / SyrCalSlope) + "\r\n");
-                                        serialPort1.Write("VOL " + String.Format("{0:0000}", 1000 / SyrCalSlope - Inf_Ticks * SyrCalIntercept / SyrCalSlope) + "\r\n");
-                                        Inf_Ticks = 0;
-
+                                        serialPort1.Write("VOL " + String.Format("{0:0000}", (1000 - SyrCalIntercept) / SyrCalSlope) + "\r\n");
                                         System.Threading.Thread.Sleep(30);
                                         serialPort1.Write("RUN\r\n");
                                         System.Threading.Thread.Sleep(30);
@@ -1916,6 +1910,13 @@ namespace TECAS_Static_Calcification
                 MessageBox.Show("LJ not connected: " + h.Message, "Watchdog", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+        }
+
+        private void button22_Click(object sender, EventArgs e)
+        {
+            if (HelpForm == null)
+                HelpForm = new FormHelp();
+            HelpForm.Show();
         }
 
         //*********************************************************************************

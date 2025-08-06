@@ -117,106 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="saveFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>153, 17</value>
-  </metadata>
-  <metadata name="serialPort1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>293, 17</value>
-  </metadata>
-  <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>402, 17</value>
-  </metadata>
-  <metadata name="timer2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>489, 17</value>
-  </metadata>
-  <metadata name="timer3.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>576, 17</value>
-  </metadata>
-  <metadata name="openFileDialog2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>663, 17</value>
-  </metadata>
-  <metadata name="saveFileDialog2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 56</value>
-  </metadata>
-  <metadata name="timer4.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>153, 56</value>
-  </metadata>
-  <metadata name="dataGridView1.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="Column1.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="Column2.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="Column3.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="Column4.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="Column5.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="Column6.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>403, 57</value>
-  </metadata>
-  <metadata name="helpProvider1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>519, 57</value>
-  </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="button22.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        /9j/4AAQSkZJRgABAQEAYABgAAD/4QBmRXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAAB
-        AAAARgEoAAMAAAABAAIAAAExAAIAAAAQAAAATgAAAAAAAABgAAAAAQAAAGAAAAABcGFpbnQubmV0IDQu
-        MC42AP/bAEMAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB
-        AQEBAQEBAQEBAQEBAf/bAEMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB
-        AQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAB4AHgMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAA
-        AAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgj
-        QrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2
-        d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj
-        5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIE
-        BAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYn
-        KCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqi
-        o6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEA
-        AhEDEQA/AP6e/wDgpz/wU50v9jTS7T4cfDiz03xT8dvFGmfb7e3vsXWi+B9Eug8Vvret28TZu9TuiGk0
-        fRpGSOSNBf36tZPbwX35QfCz9lj/AIKn/ty+E9P+Ofi/9pS7+HvhTxnbRa/4Og8TfEDxTpB1fTLhQ1nq
-        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
-</value>
+  <data name="richTextBox1.Text" xml:space="preserve">
+    <value>CSR 4.0 - Cristian D'Alessandro - cristian@mech.upatras.gr/cristian.ccd@gmail.com
+
+
+This software is intended to be used with the data acquisition system (DAQ) from Labjack, USA and a syringe pump from New Era, USA. 
+
+Before the beginning of any experiment please make sure that the connections are correct. The serial cable should be placed in the RJ-11 connector labeled "Computer" at the back of the pump. The DAQ system will have the BNC connector in the channels 4 as the positive and 5 as negative. The precision is given to 12bit per channel with a range of +/- 2.4V. Please connect the electrode through an amplifier to the BNC in the DAQ.
+
+1. Calibration of the electrode: Input the reference values in the left column and choose the time of each measurement. A voltage average will be then assigned to the corresponding concentration. It is recommended that at least 3 references are used. The calibration tab will generate a linear correlation between these references which can be saved.
+2. Measurement: This measurement tab has no possibility to record the values, it is a simple tab to measure the values according to the calibration file loaded.
+3. Syringe Calibration: Uses the same strategy as the electrode for the calibration of any type of syringe. A desired volume should be filled in the left column together with the syringe parameters. An automatic script inside the software of the pump will produce the corresponding output. To increase the accuracy, a linear correlation between the volumes desired and the volumes achieved will be done. In order to measure the volumes achieved it is recommended to weigh each sample.
+The COM port has to be correctly set for each experiment. It can be located in Windows under devices and printers in the control panel. For testing if the COM port is working properly, the manual infusion method can be used by ticking the box in the corresponding tab.
+4. CSR Experiment: This tab is the main tab of the program. The parameters will give the initial conditions: 
+Setpoint: Is the desired value that is to be maintained.
+Automatic Refill: Tick this box if you want to automatically refill the syringes through a 3 way valve. The refilling is set to be 1ml every 1ml infused.
+Infusion Deviation: It establishes the type of experiment. Negative will trigger the pumps when the value is under the setpoint and Positive will do the opposite.
+Mix Time: Is the time in seconds that the software will wait between infusions. The minimum value is set to 5 seconds.
+Max. Vol: Is the maximum volume infused by the pump for a deviation of X unit(s).
+Initial waiting time: Is the time that the software will wait while recording before the start of the infusion.
+Subsampling: Is the amount of samples per second that will be logged.
+
+Calibration during the experiment: For calibrating the electrode during the experiment, it will have to be paused. After that, please go to the "Electrode Calibration" tab and proceed with the new calibration. Once finished, go to the "CSR Experiment" tab and press "Resume". The same procedure should be done if the syringes should be calibrated.
+
+Output files: The generated files will be saved in the Windows "Documents" folder with the date of the start of the experiment.
+
+Watchdog function: In this version a watchdog function is included. The software will continue the experiment even if there are errors during operation. A log will be created with the events that triggered the error. Once an error was detected, the device will be reset automatically and try to continue the experiment. 
+If by any chance the system is shut down improperly, the watchdog will be still enabled and will prevent the use of the DAQ card until is disabled. This problem can be identified by seeing the status led on the side of the DAQ. If the led is blinking and switches off, then the watchdog is enabled. To disable it, please press the button in the "Electrode Calibration" tab. Please do not do this procedure during a running experiment.
+
+Patras, Greece - 08.04.16</value>
   </data>
-  <metadata name="$this.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAYAEBAAAAAAIABoBAAAZgAAACAgAAAAACAAqBAAAM4EAAAwMAAAAAAgAKglAAB2FQAAQEAAAAAA
