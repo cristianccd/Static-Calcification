@@ -654,8 +654,10 @@ namespace TECAS_Static_Calcification
                 textBox21.Enabled = false;
                 textBox22.Enabled = false;
                 checkBox4.Enabled = false;
-                button16.Enabled = false;
-                button17.Enabled = false;
+
+                /*button16.Enabled = false;
+                button17.Enabled = false;*/
+                panel14.Enabled = false;
                 button4.Enabled = false;
                 button5.Enabled = false;
                 button1.Enabled = false;
@@ -663,6 +665,7 @@ namespace TECAS_Static_Calcification
                 button3.Enabled = false;
                 button20.Enabled = true;
                 timer1.Enabled = true;
+
             }  
         }
 
@@ -812,10 +815,14 @@ namespace TECAS_Static_Calcification
                     comboBox22.Enabled = true;
                     textBox21.Enabled = true;
                     textBox22.Enabled = true;
-                    checkBox4.Enabled = true;
+                    
+                    //Enable checkbox, disable controls of manual infusion
                     checkBox4.Checked = false;
+                    checkBox4.Enabled = true;
                     button16.Enabled = false;
                     button17.Enabled = false;
+                    button18.Enabled = false;
+
                     button4.Enabled = true;
                     button5.Enabled = true;
                     button1.Enabled = true;
@@ -1146,7 +1153,7 @@ namespace TECAS_Static_Calcification
                         serialPort1.PortName = "COM" + Convert.ToString(comboBox22.SelectedIndex);
                         serialPort1.Open();
                     }
-                    //
+                    //Clear Values
 
                     ExpState = 0;
                     ExpTicks = 0;
@@ -1197,9 +1204,15 @@ namespace TECAS_Static_Calcification
             System.Threading.Thread.Sleep(20);
             serialPort1.Write("VOL UL\r\n");
             System.Threading.Thread.Sleep(20);
+
             AccumVolInf = 0;
             dblValueAcc1 = 0;
             dblValue1 = 0;
+            ExpState = 0;
+            ExpTicks = 0;
+            ExpAccVal = 0;
+            dblValue1 = 0;
+            dblValueAcc1 = 0;
 
             try
             {
@@ -1539,7 +1552,6 @@ namespace TECAS_Static_Calcification
             VoltoInf=0;
             AvgVoltage1 = 0;
             ExpTicks = 0;
-            ExpAccVal = 0;
             dblValueAcc1 = 0;
         }
 
@@ -1623,6 +1635,11 @@ namespace TECAS_Static_Calcification
                 tabControl1.SelectTab(tabPage4);
             }
             return;
+        }
+
+        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
+        {
+
         }
 
         //*********************************************************************************
