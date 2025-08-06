@@ -127,11 +127,12 @@ namespace TECAS_Static_Calcification
                 try
                 {
                     Convert.ToDouble(dataGridView2[0,i].Value);
-                    if (Convert.ToDouble(dataGridView2[0, i].Value) <= 0 || Convert.ToDouble(dataGridView2[0, i].Value) > 14)
+                    /*if (Convert.ToDouble(dataGridView2[0, i].Value) <= 0 || Convert.ToDouble(dataGridView2[0, i].Value) > 14)
                     {
                         MessageBox.Show("sample No." + Convert.ToString(i + 1) + " not correct!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
-                    }
+                    }*/
+                    return true;
                 }
                 catch (Exception )
                 {
@@ -385,7 +386,7 @@ namespace TECAS_Static_Calcification
                     label23.Text = String.Format("{0:0.0000}", pHCalSlope);
                     panel1.Visible = true;
                     chart3.Series["Series1"].Points.AddXY(0, pHCalIntercept);
-                    chart3.Series["Series1"].Points.AddXY(14, pHCalSlope * 14 + pHCalIntercept);
+                    chart3.Series["Series1"].Points.AddXY(1000, pHCalSlope * 1000 + pHCalIntercept);
                     button12.Enabled = true;
                     button6.Enabled = true;
                     button7.Enabled = false;
@@ -1197,7 +1198,7 @@ namespace TECAS_Static_Calcification
         {
             try
             {
-                if (Convert.ToDouble(textBox2.Text) < 0 || Convert.ToDouble(textBox6.Text) < 5)
+                if (Convert.ToDouble(textBox6.Text) < 0 || Convert.ToDouble(textBox6.Text) < 5)
                     throw new ArgumentException();
                 if (Convert.ToDouble(textBox5.Text) < 20 || Convert.ToDouble(textBox5.Text) > 500)
                     throw new ArgumentException();
@@ -1275,8 +1276,8 @@ namespace TECAS_Static_Calcification
                     EnableTab(tabPage3, false);
                     //enable the timer again for showing the graph
                     LJUD.AddRequest(u3.ljhandle, LJUD.IO.PUT_CONFIG, LJUD.CHANNEL.SWDT_ENABLE, 10, 0, 0);
-                    LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
-                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
+                    LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 63, 16);//first 5 FIO analog b0000000000011111
+                    LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 5, 0);//Request FIO4
                     LJUD.GoOne(u3.ljhandle);
                     timer4.Enabled = true;
                     timer2.Enabled = false;
@@ -1667,8 +1668,8 @@ namespace TECAS_Static_Calcification
             LJUD.AddRequest(u3.ljhandle, LJUD.IO.SWDT_CONFIG, LJUD.CHANNEL.SWDT_ENABLE, 10, 0, 0);
             LJUD.AddRequest(u3.ljhandle, LJUD.IO.PUT_CONFIG, LJUD.CHANNEL.SWDT_RESET_DEVICE, 1, 0, 0);
             LJUD.ePut(u3.ljhandle, LJUD.IO.PIN_CONFIGURATION_RESET, 0, 0, 0);
-            LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 31, 16);//first 5 FIO analog b0000000000011111
-            LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 32, 0);//Request FIO4
+            LJUD.ePut(u3.ljhandle, LJUD.IO.PUT_ANALOG_ENABLE_PORT, 0, 63, 16);//first 5 FIO analog b0000000000011111
+            LJUD.AddRequest(u3.ljhandle, LJUD.IO.GET_AIN_DIFF, 4, 0, 5, 0);//Request FIO4
             LJUD.GoOne(u3.ljhandle);
         }
 

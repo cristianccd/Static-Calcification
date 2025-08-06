@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="richTextBox1.Text" xml:space="preserve">
-    <value>CSR 4.1 - Cristian D'Alessandro - cristian@mech.upatras.gr/cristian.ccd@gmail.com
+    <value>CSR 4.2 - Cristian D'Alessandro - cristian@mech.upatras.gr/cristian.ccd@gmail.com
 
 
 This software is intended to be used with the data acquisition system (DAQ) from Labjack, USA and a syringe pump from New Era, USA. 
