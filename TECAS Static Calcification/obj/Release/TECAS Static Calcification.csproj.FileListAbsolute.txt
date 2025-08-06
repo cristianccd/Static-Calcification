@@ -502,3 +502,6 @@ D:\Users\Cristian\Documents\Dropbox\ESR4\Software\Calcification\Static Calcif V4
 D:\Users\Cristian\Documents\Dropbox\ESR4\Software\Calcification\Static Calcif V4.3\TECAS Static Calcification\obj\Release\TECAS Static Calcification.csproj.GenerateResource.Cache
 D:\Users\Cristian\Documents\Dropbox\ESR4\Software\Calcification\Static Calcif V4.3\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe.manifest
 D:\Users\Cristian\Documents\Dropbox\ESR4\Software\Calcification\Static Calcif V4.3\TECAS Static Calcification\obj\Release\TECAS Static Calcification.application
+D:\Users\Cristian\Documents\MEGA\ESR4\Software\Calcification\Static Calcif V4.4\TECAS Static Calcification\bin\Release\TECAS Static Calcification.exe.config
+D:\Users\Cristian\Documents\MEGA\ESR4\Software\Calcification\Static Calcif V4.4\TECAS Static Calcification\obj\Release\TECAS Static Calcification.exe
+D:\Users\Cristian\Documents\MEGA\ESR4\Software\Calcification\Static Calcif V4.4\TECAS Static Calcification\obj\Release\TECAS Static Calcification.pdb
