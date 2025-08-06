@@ -26,7 +26,6 @@ namespace TECAS_Static_Calcification
         DateTime pHMeasureStart;
         DialogResult pHQuestSample;
         int Waitlbltick = 0;
-        bool pHCal;
 
         //Syringe Calibration
         double SyrR2=0, SyrCalIntercept=0, SyrCalSlope=0;
@@ -49,7 +48,7 @@ namespace TECAS_Static_Calcification
         double ExpTicks = 0, ExpAvgVal = 0, ExpAccVal = 0, Deviation=0, VoltoInf=0, TimeDif=0;
         DateTime ExpStart, ExpWaitTime;
         bool InfStarted = false, TimeMix=false;
-        bool Paused = false, PositiveDev = false;
+        bool Paused = false;
         int ExpState = 0, GraphPt=1;
         double AccumVolInf = 0, SubSampling=0, WdrVol=1000;
         static private System.Timers.Timer aTimer;
@@ -181,7 +180,6 @@ namespace TECAS_Static_Calcification
                 pHSampleNo = 0;
                 label10.Text = "0.00";
                 label12.Text = "00:00";
-                pHCal = false;
                 panel1.Visible = false;
                 for (int i = 0; i < dataGridView2.RowCount; i++)
                     dataGridView2[1, i].Value = "";
@@ -297,7 +295,6 @@ namespace TECAS_Static_Calcification
                     SumpHCal = 0;
                     pHSampleNo = 0;
                     pHCalState = 0;
-                    pHCal = true;
                     button6.Enabled = true;
                     button7.Enabled = false;
                     textBox3.Enabled = true;
@@ -314,14 +311,15 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException)
+                catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                     label10.Text = String.Format("{0:0.0000}", dblValue);
                 try
                 {
+                    
                     LJUD.GetNextResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
                 catch (LabJackUDException h)
@@ -329,7 +327,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -355,7 +353,6 @@ namespace TECAS_Static_Calcification
                     chart3.Series["Series1"].Points.AddXY(0, pHCalIntercept);
                     chart3.Series["Series1"].Points.AddXY(14, pHCalSlope * 14 + pHCalIntercept);
                     button12.Enabled = true;
-                    pHCal = true;
                     button6.Enabled = true;
                     button7.Enabled = false;
                     textBox3.Enabled = true;
@@ -417,7 +414,6 @@ namespace TECAS_Static_Calcification
             button19.Enabled = false;
             label10.Text = "0.00";
             label12.Text = "00:00";
-            pHCal = false;
             dataGridView2.Rows.Clear();
             dataGridView2.Rows.Add(2);
         }
@@ -489,9 +485,9 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue, ref dummyInt, ref dummyDouble);
                 }
-                catch (LabJackUDException)
+                catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error getting the DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
@@ -528,7 +524,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             timer2.Enabled = true;
@@ -1165,13 +1161,15 @@ namespace TECAS_Static_Calcification
                     ExpAccVal = 0;
                     dblValue1 = 0;
                     dblValueAcc1 = 0;
-
-                    aTimer.Enabled = true;
+                    label23.Text = String.Format("{0:0.0000}", pHCalSlope);
+                    label35.Text = String.Format("{0:0.0000}", SyrCalSlope);
                     textBox2.Enabled = false;
                     textBox4.Enabled = false;
                     EnableTab(tabPage1, false);
                     EnableTab(tabPage2, false);
                     EnableTab(tabPage3, false);
+                    aTimer.Enabled = true;
+
                 }
                 return;
             }
@@ -1262,7 +1260,7 @@ namespace TECAS_Static_Calcification
             }
             catch (LabJackUDException h)
             {
-                MessageBox.Show("Error opening DAQ. "+h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error opening DAQ. "+ h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 serialPort1.Close();
                 return;
             }
@@ -1280,6 +1278,7 @@ namespace TECAS_Static_Calcification
             textBox4.Enabled = false;
             comboBox1.Enabled = false;
             checkBox5.Enabled = false;
+            comboBox3.Enabled = false;
            
             // Create a timer with an interval.
             aTimer = new System.Timers.Timer(SubSampling);
@@ -1331,9 +1330,9 @@ namespace TECAS_Static_Calcification
                     LJUD.GoOne(u3.ljhandle);
                     LJUD.GetFirstResult(u3.ljhandle, ref ioType, ref channel, ref dblValue1, ref dummyInt, ref dummyDouble1);
                 }
-                catch (LabJackUDException)
+                catch (LabJackUDException h)
                 {
-                    MessageBox.Show("Error getting the DAQ results", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error getting the DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 if (ioType == LJUD.IO.GET_AIN_DIFF)
                 {
@@ -1458,7 +1457,7 @@ namespace TECAS_Static_Calcification
                     if (h.LJUDError == U3.LJUDERROR.NO_MORE_DATA_AVAILABLE)
                         requestedExit = true;//no more data to read
                     else
-                        MessageBox.Show("Error getting DAQ data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Error getting DAQ data. " + h.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             timer4.Enabled = true;
@@ -1476,6 +1475,7 @@ namespace TECAS_Static_Calcification
                         chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
                         chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
                         sw.Write("," + TimeDif + "," + ExpAvgVal + ",,," + TimeDif + "," + AccumVolInf + ",,," + TimeDif + "," + Deviation + "\n");
+                        sw.Flush();
                         graphUpdate++;
                         if (graphUpdate % GraphPt == 0)
                         {
@@ -1536,7 +1536,6 @@ namespace TECAS_Static_Calcification
                 return;
             }
             Paused = true;
-            //
             timer4.Enabled = false;
             ExpState = 0;
             aTimer.Enabled = false;
@@ -1572,6 +1571,7 @@ namespace TECAS_Static_Calcification
             textBox4.Enabled = true;
             comboBox1.Enabled = true;
             checkBox5.Enabled = true;
+            comboBox3.Enabled = true;
 
             Paused = false;
             EnableTab(tabPage1, true);
