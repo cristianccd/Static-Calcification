@@ -47,11 +47,19 @@ namespace TECAS_Static_Calcification
         //Experiment
         double ExpTicks = 0, ExpAvgVal = 0, ExpAccVal = 0, Deviation=0, VoltoInf=0, TimeDif=0;
         DateTime ExpStart, ExpWaitTime;
-        bool InfStarted = false;
+        bool InfStarted = false, WdrStarted=false;
         bool Paused = false;
         int ExpState = 0;
         double AccumVolInf = 0, SubSampling=0;
         static private System.Timers.Timer aTimer;
+
+        private class StateObjClass
+        {
+            // Used to hold parameters for calls to TimerTask. 
+            public int SomeValue;
+            public System.Threading.Timer TimerReference;
+            public bool TimerCanceled;
+        }
 
         //***************************
 
@@ -1194,7 +1202,7 @@ namespace TECAS_Static_Calcification
             textBox4.Enabled = false;
             comboBox1.Enabled = false;
            
-            // Create a timer with a two second interval.
+            // Create a timer with an interval.
             aTimer = new System.Timers.Timer(SubSampling);
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
@@ -1242,15 +1250,6 @@ namespace TECAS_Static_Calcification
                             ExpTicks = 0;
                             ExpAccVal = 0;
                             //if it is paused, do not infuse... just read ph
-                            if (InfStarted)
-                            {
-                                System.Threading.Thread.Sleep(15);
-                                _Reading = serialPort1.ReadExisting();
-                                label52.Text = String.Format("{0:0.0000}", (Convert.ToDouble(_Reading.Substring(5, 5)))) + " " + _Reading.Substring(16, 2).ToLower(); 
-                            }
-
-
-
                             if (Paused)
                             {
                                 ExpState = 0;
@@ -1263,16 +1262,26 @@ namespace TECAS_Static_Calcification
                                 System.Threading.Thread.Sleep(15);
                                 break;
                             }
-                            if (InfStarted && DateTime.Now.AddSeconds(-10) > ExpWaitTime)
+                            if (InfStarted)
                             {
                                 ExpState = 3;
                                 break;
                             }
+                            if (WdrStarted)
+                            {
+                                ExpState = 4;
+                                break;
+                            }
+                            /*if (InfStarted && DateTime.Now.AddSeconds(-3) > ExpWaitTime)
+                            {
+                                ExpState = 3;
+                                break;
+                            }*/
                             ExpState = 0;
                             break;
                         case 2:
                             InfStarted = true;
-                            //ExpWaitTime=DateTime.Now;
+                            ExpWaitTime=DateTime.Now;
                             VoltoInf = ((Deviation * (50 / 0.03)) - SyrCalIntercept) / SyrCalSlope;
                             if (VoltoInf < 10)
                                 VoltoInf = 10;
@@ -1286,11 +1295,50 @@ namespace TECAS_Static_Calcification
                             ExpState=0;
                             break;
                         case 3:
+                            _Reading = serialPort1.ReadExisting();
+                            serialPort1.Write("DIS\r\n");
+                            System.Threading.Thread.Sleep(15);
+                            _Reading = serialPort1.ReadExisting();
+                            if (Convert.ToDouble(_Reading.Substring(5, 5)) >= VoltoInf)
+                            {
+                                InfStarted = false;
+                                WdrStarted = true;
+                                serialPort1.Write("STP\r\n");
+                                System.Threading.Thread.Sleep(15);
+                                serialPort1.Write("DIR WDR\r\n");
+                                System.Threading.Thread.Sleep(15);
+                                serialPort1.Write("RAT 800 MH\r\n"); //Rate fixed
+                                System.Threading.Thread.Sleep(15);
+                                serialPort1.Write("VOL " + String.Format("{0:00.00}", VoltoInf) + "\r\n");
+                                System.Threading.Thread.Sleep(15);
+                                serialPort1.Write("RUN\r\n");
+                                System.Threading.Thread.Sleep(15);
+                                ExpState = 4;
+                            }
+                            break;
+                        case 4:
+                            WdrStarted = false;
+                            _Reading = serialPort1.ReadExisting();
+                            serialPort1.Write("DIS\r\n");
+                            System.Threading.Thread.Sleep(15);
+                            _Reading = serialPort1.ReadExisting();
+                            if (Convert.ToDouble(_Reading.Substring(11, 5)) >= VoltoInf)
+                            {
+                                WdrStarted = false;
+                                ExpState = 0;
+                            }
+                            break;
+
+                        /*case 3:
                             InfStarted = false;
                             serialPort1.Write("STP\r\n");
+                            _Reading = serialPort1.ReadExisting();
+                            serialPort1.Write("DIS\r\n");
                             System.Threading.Thread.Sleep(15);
+                            _Reading = serialPort1.ReadExisting();
+                            label52.Text = _Reading.Substring(13, 5);
                             ExpState=0;
-                            break;
+                            break;*/
                     }
                 }
                 try
@@ -1310,10 +1358,16 @@ namespace TECAS_Static_Calcification
 
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            TimeDif = (DateTime.Now - ExpStart).TotalSeconds;
-            chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
-            chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
-            chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate
+                    {
+                        TimeDif = (DateTime.Now - ExpStart).TotalSeconds;
+                        chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
+                        chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
+                        chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
+                    }));
+            }
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
@@ -1356,7 +1410,7 @@ namespace TECAS_Static_Calcification
         {
             serialPort1.Close();
             timer4.Enabled = false;
-            aTimer.Enabled = false;
+  
             aTimer.Enabled = false;
             button13.Enabled = false;
             button15.Enabled = false;
