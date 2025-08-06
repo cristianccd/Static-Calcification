@@ -7,11 +7,8 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Timers;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Sockets;
-
+using System.Timers;
 
 namespace TECAS_Static_Calcification
 {
@@ -53,8 +50,9 @@ namespace TECAS_Static_Calcification
         bool Paused = false;
         int ExpState = 0, GraphPt=1, graphUpdate;
         double AccumVolInf = 0, SubSampling=0, WdrVol=1000, CalcVol=0, ReadVol=0;
-        static private System.Timers.Timer aTimer, bTimer;
+        static private System.Timers.Timer aTimer;
         StreamWriter sw, swexp, Error_SW;
+        int Inf_Ticks = 0;
 
         bool newErrorLog = true;
 
@@ -62,19 +60,6 @@ namespace TECAS_Static_Calcification
         double xMin, yMin, xMax, yMax;
         double posXStart, posYStart, posXFinish, posYFinish;
 
-        //Tx data
-        System.Net.Sockets.TcpClient clientSocket = new System.Net.Sockets.TcpClient();
-        int Status = 0; //Status of the machine
-        int Count = 0; //Message counter
-        byte[] inStream = new byte[4096]; //Received message
-        NetworkStream serverStream; //Streamer
-        TcpListener serverSocket = new TcpListener(8888);
-        int bytesRead; //Received bytes read
-        string Returned_Data; //Returned data
-        Byte[] sendBytes;
-        string Client_Response;
-        bool Connected = false;
-        string Server_Response;
         //***************************
 
         public TECAS()
@@ -1278,6 +1263,7 @@ namespace TECAS_Static_Calcification
                     ExpState = 0;
                     ExpTicks = 0;
                     ExpAccVal = 0;
+                    Inf_Ticks = 0;
                     //Set the controls to disable and the tabs
                     textBox2.Enabled = false;
                     textBox5.Enabled = false;
@@ -1294,11 +1280,6 @@ namespace TECAS_Static_Calcification
                     timer4.Enabled = true;
                     timer2.Enabled = false;
                     aTimer.Enabled = true;
-                    // Create a timer with an interval.
-                    bTimer = new System.Timers.Timer(SubSampling);
-                    // Hook up the Elapsed event for the timer. 
-                    bTimer.Elapsed += new ElapsedEventHandler(TcpListenTimer);
-                    bTimer.Enabled = true;
                 }
                 return;
             }
@@ -1442,17 +1423,6 @@ namespace TECAS_Static_Calcification
                 LJUD.ePut(u3.ljhandle, LJUD.IO.SWDT_CONFIG, LJUD.CHANNEL.SWDT_DISABLE, 0, 0); 
                 return;
             } 
-            //Commencing connection
-            try
-            {
-                serverSocket.Start();                
-            }
-            catch (Exception h)
-            {
-                UpdateStatStrip(h, true);
-                MessageBox.Show(h.Message, "Error starting server!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }            
-
             ExpStart = DateTime.Now;
             //Disable all other timers that might be enabled
             timer1.Enabled = false;
@@ -1591,6 +1561,8 @@ namespace TECAS_Static_Calcification
                             serialPort1.Write("VOL " + String.Format("{0:000.0}", VoltoInf) + "\r\n");
                             //Accum the vol
                             AccumVolInf += CalcVol;
+                            //Increase the ticks
+                            Inf_Ticks++;
                             System.Threading.Thread.Sleep(20);
                             //Set the timer to now to check if some secs passed
                             ExpWaitTime = DateTime.Now;
@@ -1619,7 +1591,12 @@ namespace TECAS_Static_Calcification
                                         serialPort1.Write("DIR WDR\r\n");
                                         System.Threading.Thread.Sleep(30);
                                         //Write to the syringe
-                                        serialPort1.Write("VOL " + String.Format("{0:0000}", (1000 - SyrCalIntercept) / SyrCalSlope) + "\r\n");
+
+                                        //BUG********************************
+                                        //serialPort1.Write("VOL " + String.Format("{0:0000}", (1000 - SyrCalIntercept) / SyrCalSlope) + "\r\n");
+                                        serialPort1.Write("VOL " + String.Format("{0:0000}", 1000 / SyrCalSlope - Inf_Ticks * SyrCalIntercept / SyrCalSlope) + "\r\n");
+                                        Inf_Ticks = 0;
+
                                         System.Threading.Thread.Sleep(30);
                                         serialPort1.Write("RUN\r\n");
                                         System.Threading.Thread.Sleep(30);
@@ -1700,28 +1677,6 @@ namespace TECAS_Static_Calcification
             LJUD.GoOne(u3.ljhandle);
         }
 
-        //Check for incomings
-        private void TcpListenTimer(Object source, ElapsedEventArgs e)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new MethodInvoker(delegate
-                    {
-                        if (!serverSocket.Pending())
-                            return;
-                        try
-                        {
-                            clientSocket = serverSocket.AcceptTcpClient();
-                            Connected = true;
-                        }
-                        catch (Exception h)
-                        {
-                            UpdateStatStrip(h, true);
-                            MessageBox.Show(h.Message, "Error starting server!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }));
-            }
-        }
         //Refresh Graph
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
@@ -1751,22 +1706,6 @@ namespace TECAS_Static_Calcification
                         label17.Text = String.Format("{0:0.000}", Deviation);
                         label21.Text = String.Format("{0}", (DateTime.Now - ExpStart).Days)+ " days " + String.Format("{0:00}", (DateTime.Now - ExpStart).Hours) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Minutes) + ":" + String.Format("{0:00}", (DateTime.Now - ExpStart).Seconds);
                         label19.Text = String.Format("{0:00000.00}", AccumVolInf) + " ul";
-                        //if connected, tx data
-                        if (Connected)
-                        {
-                            try
-                            {
-                                Server_Response = DateTime.Now.ToString() ;
-                                sendBytes = Encoding.ASCII.GetBytes(Server_Response);
-                                serverStream.Write(sendBytes, 0, sendBytes.Length);
-                                serverStream.Flush();
-                            }
-                            catch (Exception h)
-                            {
-                                UpdateStatStrip(h, true);
-                                MessageBox.Show(h.Message, "Error sending data!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        }
                     }));
             }
         }
