@@ -49,9 +49,10 @@ namespace TECAS_Static_Calcification
         DateTime ExpStart, ExpWaitTime;
         bool InfStarted = false, WdrStarted=false, TimeMix=false;
         bool Paused = false;
-        int ExpState = 0;
+        int ExpState = 0, GraphPt=1;
         double AccumVolInf = 0, SubSampling=0, WdrVol=1000;
         static private System.Timers.Timer aTimer;
+        StreamWriter sw;
 
         //Zoom
         double xMin, yMin, xMax, yMax;
@@ -1145,18 +1146,23 @@ namespace TECAS_Static_Calcification
                 {
                     case 0:
                         SubSampling = 500;
+                        GraphPt = 10; //Every 5 secs, refresh graph
                         break;
                     case 1:
                         SubSampling = 1000;
+                        GraphPt = 5;
                         break;
                     case 2:
                         SubSampling = 2000;
+                        GraphPt = 3;
                         break;
                     case 3:
                         SubSampling = 3000;
+                        GraphPt = 2;
                         break;
                     case 4:
                         SubSampling = 4000;
+                        GraphPt = 1;
                         break;
                 }
             }
@@ -1199,6 +1205,24 @@ namespace TECAS_Static_Calcification
             aTimer = new System.Timers.Timer(SubSampling);
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+
+            //Export Data
+            string _FirstLine = "PH Setp.:"+ textBox2.Text +",Time[s],Value,,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value,\n";
+            string[] Content = new string[chart4.Series["Series1"].Points.Count];
+            string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ @"\Calcification Experiments";
+            try
+            {
+                if (!System.IO.Directory.Exists(Path))
+                    System.IO.Directory.CreateDirectory(Path);
+                sw = new StreamWriter(Path+@"\"+DateTime.Now.ToString("yyyy-MM-dd HHmmss")+".csv");
+                sw.Write(_FirstLine);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error Writing File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            } 
+
             ExpStart = DateTime.Now;
             aTimer.Enabled = true;
             timer4.Enabled = true;
@@ -1319,6 +1343,7 @@ namespace TECAS_Static_Calcification
             timer4.Enabled = true;
         }
 
+        int graphUpdate;
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             if (InvokeRequired)
@@ -1329,6 +1354,15 @@ namespace TECAS_Static_Calcification
                         chart4.Series["Series1"].Points.AddXY(TimeDif, ExpAvgVal);
                         chart4.Series["Series2"].Points.AddXY(TimeDif, AccumVolInf);
                         chart4.Series["Series3"].Points.AddXY(TimeDif, Deviation);
+                        sw.Write("," + TimeDif + "," + ExpAvgVal + ",,," + TimeDif + "," + AccumVolInf + ",,," + TimeDif + "," + Deviation + "\n");
+                        graphUpdate++;
+                        if (graphUpdate % GraphPt == 0)// && chart4.Series["Series1"].Points.Count>1000)
+                        {
+                            chart4.Series.ResumeUpdates();
+                            chart4.Series.Invalidate();
+                            chart4.Series.SuspendUpdates();
+                            graphUpdate = 0;
+                        }
 
                         label13.Text = String.Format("{0:0.000000000 V}", dblValue);
                         label16.Text = String.Format("{0:0.0000000}", ExpAvgVal);                     
@@ -1390,13 +1424,21 @@ namespace TECAS_Static_Calcification
             serialPort1.Close();
             timer4.Enabled = false;
             aTimer.Enabled = false;
+            sw.Close();
             button13.Enabled = false;
             button15.Enabled = false;
             button14.Enabled = true;
             textBox2.Enabled = true;
             textBox4.Enabled = true;
             comboBox1.Enabled = true;
-            //Export Data
+
+            Paused = false;
+            ExpTicks = 0;
+            ExpAvgVal = 0;
+            ExpAccVal = 0;
+            Deviation=0;
+            VoltoInf=0;
+            /*//Export Data
             string _FirstLine = "PH Setp.:"+ textBox2.Text +",Time[s],Value,,VOLUME,Time[s],Volume[ul],,DEVIATION,Time[s],Value,,Total Time: "+ label21.Text +"\n";
             string[] Content = new string[chart4.Series["Series1"].Points.Count];
             string Path = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ @"\Calcification Experiments";
@@ -1422,7 +1464,7 @@ namespace TECAS_Static_Calcification
             {
                 MessageBox.Show(ex.Message, "Error Writing File", MessageBoxButtons.OK, MessageBoxIcon.Error);
             } 
-            //End Export Data
+            //End Export Data*/
         }
 
         //*********************************************************************************
@@ -1486,6 +1528,11 @@ namespace TECAS_Static_Calcification
             chart4.Focus();
             chart4.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             chart4.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
+        }
+
+        private void TECAS_Load(object sender, EventArgs e)
+        {
+            chart4.Series.SuspendUpdates();
         }
 
 

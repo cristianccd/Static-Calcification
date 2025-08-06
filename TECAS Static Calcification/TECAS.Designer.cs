@@ -56,6 +56,8 @@
             this.saveFileDialog2 = new System.Windows.Forms.SaveFileDialog();
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.label49 = new System.Windows.Forms.Label();
             this.label51 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label50 = new System.Windows.Forms.Label();
@@ -168,8 +170,6 @@
             this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.label49 = new System.Windows.Forms.Label();
-            this.textBox4 = new System.Windows.Forms.TextBox();
             this.tabPage4.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel11.SuspendLayout();
@@ -235,7 +235,7 @@
             // 
             // timer4
             // 
-            this.timer4.Interval = 1;
+            this.timer4.Interval = 25;
             this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
             // 
             // tabPage4
@@ -259,6 +259,22 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Static pH Experiment";
             this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(598, 107);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(57, 20);
+            this.textBox4.TabIndex = 31;
+            // 
+            // label49
+            // 
+            this.label49.AutoSize = true;
+            this.label49.Location = new System.Drawing.Point(541, 86);
+            this.label49.Name = "label49";
+            this.label49.Size = new System.Drawing.Size(149, 13);
+            this.label49.TabIndex = 30;
+            this.label49.Text = "Initial waiting time [sec.]:";
             // 
             // label51
             // 
@@ -1560,22 +1576,6 @@
             this.tabControl1.Size = new System.Drawing.Size(698, 456);
             this.tabControl1.TabIndex = 0;
             // 
-            // label49
-            // 
-            this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(541, 86);
-            this.label49.Name = "label49";
-            this.label49.Size = new System.Drawing.Size(149, 13);
-            this.label49.TabIndex = 30;
-            this.label49.Text = "Initial waiting time [sec.]:";
-            // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(598, 107);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(57, 20);
-            this.textBox4.TabIndex = 31;
-            // 
             // TECAS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1587,6 +1587,7 @@
             this.Name = "TECAS";
             this.Text = "TECAS Calcification Experiment";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TECAS_FormClosing);
+            this.Load += new System.EventHandler(this.TECAS_Load);
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
             this.panel13.ResumeLayout(false);
